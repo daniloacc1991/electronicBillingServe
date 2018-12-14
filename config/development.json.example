@@ -1,0 +1,8 @@
+{
+  "application_name": "billingServer",
+  "database": "NameDatabase",
+  "host": "NameHost Or IOHost",
+  "password": "PasswordUserDB",
+  "port": 5432,
+  "user": "UserDB"
+}

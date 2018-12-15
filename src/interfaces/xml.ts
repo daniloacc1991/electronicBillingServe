@@ -171,7 +171,8 @@ export class XmlAdmin {
             "cbc:RegistrationName": encabezado[0].companyname
           },
           "cac:Contact": {
-            "cbc:Telephone": encabezado[0].companytelephone
+            "cbc:Telephone": encabezado[0].companytelephone,
+            "cbc:Note" : encabezado[0].plan
           }
         }
       },

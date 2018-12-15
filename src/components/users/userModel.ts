@@ -20,7 +20,7 @@ export class UserModel extends ModelPg {
 
   public async pg_SaveToken (token: string, id: number) {
     try {
-      const { rows } = await this._pg.query(`INSERT INTO user_token (token, id) VALUES($1, $2)`, [token, id]);
+      const { rows } = await this._pg.query(`INSERT INTO user_token (token, id) VALUES($1, $2) RETURNING *`, [token, id]);
       return ((!rows) ? {} : rows[0]);
     } catch (e) {
       throw e;
@@ -29,7 +29,16 @@ export class UserModel extends ModelPg {
 
   public async pg_verifyToken (token: string) {
     try {
-      const { rows } = await this._pg.query(`SELECT * FROM user_token WHERE token = $1`, [token]);
+      const { rows } = await this._pg.query(`SELECT * FROM user_token WHERE token = $1 AND delete = false`, [token]);
+      return ((!rows) ? {} : rows[0]);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async pg_logOff (token: string) {
+    try {
+      const { rows } = await this._pg.query(`UPDATE user_token SET delete = true WHERE token = $1 RETURNING *`, [token]);
       return ((!rows) ? {} : rows[0]);
     } catch (e) {
       throw e;

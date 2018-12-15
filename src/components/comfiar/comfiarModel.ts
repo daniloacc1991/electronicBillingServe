@@ -4,6 +4,8 @@ import * as xmlToJson from 'xml-to-json-stream';
 
 export class ComfiarModel {
 
+  private parser = xmlToJson( { attributeMode: false } );
+
   private optionsXml: Object = {
     compact: true,
     ignoreAttributes: true,
@@ -21,20 +23,27 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
-      const _result = JSON.parse(xml2json(result, this.optionsXml));
-      const credentials = {
-        token: _result['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.SesionId._text,
-        date: _result['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.FechaVencimiento._text
-      };
-      return (credentials);
+      this.parser.xmlToJson( result, (err, json) => {
+        if (err) {
+          throw err;
+        } else {
+          const credentials = {
+            token: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.SesionId,
+            date: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.FechaVencimiento
+          };
+          return (credentials);
+        }
+      });
     } catch (e) {
-      const err = JSON.parse(xml2json(e.error, this.optionsXml));
-      console.log(err);
-      throw {
-        name: e.name,
-        statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
-      };
+      this.parser.xmlToJson( e.error, (err, json) => {
+        if (err) {
+          throw err;
+        } else {
+          throw {
+            stack: json['soap:Envelope']['soap:Body']['soap:Fault'].faultstring
+          };
+        }
+      });
     }
   }
 
@@ -144,8 +153,7 @@ export class ComfiarModel {
             stack: _data.ResponseError.Error
           });
         } else {
-          const parser = xmlToJson( { attributeMode: false } );
-          parser.xmlToJson( _data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
+          this.parser.xmlToJson( _data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
             if (err) {
               reject(err);
             }
@@ -241,7 +249,6 @@ export class ComfiarModel {
           resolve(response);
         })
         .catch(err => {
-          console.log(err);
           reject(err);
         });
     });

@@ -8,7 +8,7 @@ export class FacturaController {
 
   public static invoicePending (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.invoicePending(req.params.user)
+    _modelFactura.invoicePending(req.user.user)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -21,7 +21,7 @@ export class FacturaController {
 
   public static forYearxUser (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.forYearUser(req.body.date, req.body.user)
+    _modelFactura.forYearUser(req.body.date, req.user.user)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -35,7 +35,8 @@ export class FacturaController {
 
   public static electronicForUser (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.electronicforUser(req.body.user)
+    console.log(req.user);
+    _modelFactura.electronicforUser(req.user.user)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -48,7 +49,7 @@ export class FacturaController {
 
   public static cufePending (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.cufePending(req.params.user)
+    _modelFactura.cufePending(req.user.user)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -61,7 +62,7 @@ export class FacturaController {
 
   public static invoicesSent (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.invoicesSent(req.params.user)
+    _modelFactura.invoicesSent(req.user.user)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));

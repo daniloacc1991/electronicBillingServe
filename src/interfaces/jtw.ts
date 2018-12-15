@@ -4,4 +4,5 @@ export interface IClaims {
   jti;
   sub;
   scope;
+  user;
 }

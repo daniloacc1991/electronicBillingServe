@@ -9,6 +9,7 @@ import { sign } from 'jsonwebtoken';
 import { IClaims } from '../../interfaces/jtw';
 import { Commons, log } from '../../services';
 import { UserModel } from './';
+import { token } from 'morgan';
 
 export class UserController {
 
@@ -24,21 +25,34 @@ export class UserController {
       iss: `http://localhost:${config.get('port')}`,
       sub: user.usuario,
       jti: user.id,
-      scope: 'USER'
+      scope: 'USER',
+      user: user.usuario
     };
     const token = sign(data, config.get('API_KEY'), { algorithm: 'HS512' });
-    log.info(token);
     const _modelUsers = new UserModel();
     _modelUsers.pg_SaveToken(token, user.id)
       .then(resp => {
         log.info(req.user);
-        log.info(token);
         res.json(Commons.sendResponse('Success', { username: user.username, token }));
       })
       .catch(err => {
         log.error(err);
         res.status(400).json(Commons.sendResponse('Error!! Iniciando sesion..', null, err.stack));
       });
+  }
+
+  public static logOff (req: Request, res: Response) {
+    console.log(req.body);
+    const _modelUsers = new UserModel();
+    _modelUsers.pg_logOff( req.body.token )
+    .then( rows => {
+      log.info(rows);
+      res.json(Commons.sendResponse('Success', {rows} ));
+    })
+    .catch( err => {
+      log.error(err);
+      res.status(400).json(Commons.sendResponse('Error!! Cerrar sesion..', null, err.stack));
+    });
   }
 
 }

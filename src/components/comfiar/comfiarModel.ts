@@ -23,21 +23,26 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
-      this.parser.xmlToJson( result, (err, json) => {
-        if (err) {
-          throw err;
-        } else {
-          const credentials = {
-            token: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.SesionId,
-            date: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.FechaVencimiento
-          };
-          return (credentials);
-        }
+      return new Promise ( (resolve, reject) => {
+        this.parser.xmlToJson( result, (err, json) => {
+          if (err) {
+            reject({
+              stack: err
+            });
+          } else {
+            resolve({
+              token: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.SesionId,
+              date: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.FechaVencimiento
+            });
+          }
+        });
       });
     } catch (e) {
       this.parser.xmlToJson( e.error, (err, json) => {
         if (err) {
-          throw err;
+          throw {
+            stack: err
+          };
         } else {
           throw {
             stack: json['soap:Envelope']['soap:Body']['soap:Fault'].faultstring
@@ -73,7 +78,7 @@ export class ComfiarModel {
       throw {
         name: e.name,
         statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']
+        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
       };
     }
   }
@@ -116,7 +121,7 @@ export class ComfiarModel {
       throw {
         name: e.name,
         statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']
+        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
       };
     }
   }
@@ -169,7 +174,7 @@ export class ComfiarModel {
       throw {
         name: e.name,
         statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']
+        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
       };
     }
   }
@@ -218,7 +223,7 @@ export class ComfiarModel {
       throw {
         name: e.name,
         statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']
+        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
       };
     }
   }

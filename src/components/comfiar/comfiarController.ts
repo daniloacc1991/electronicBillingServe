@@ -27,7 +27,7 @@ export class ComfiarController {
       })
       .catch(err => {
         log.error('%s %s %s', err);
-        res.status(400).json(Commons.sendResponse('Error!! enviando la factura a comfiar..', null, err));
+        res.status(400).json(Commons.sendResponse('Error!! enviando la factura a comfiar..', null, err.stack));
       });
   }
 
@@ -40,7 +40,7 @@ export class ComfiarController {
       })
       .catch(err => {
         log.error('%s %s %s', err);
-        res.status(400).json(Commons.sendResponse('Error!! al consultar la salida de la transacción en comfiar..', null, err));
+        res.status(400).json(Commons.sendResponse('Error!! al consultar la salida de la transacción en comfiar..', null, err.stack));
       });
   }
 
@@ -52,8 +52,8 @@ export class ComfiarController {
         res.json(Commons.sendResponse('Success', { rows }));
       })
       .catch(err => {
-        console.error(err);
-        res.status(400).json(Commons.sendResponse('Error!! al consular la respuesta del comprobante en comfiar..', null, err));
+        log.error('%s %s %s', err);
+        res.status(400).json(Commons.sendResponse('Error!! al consular la respuesta del comprobante en comfiar..', null, err.stack));
       });
   }
 
@@ -65,7 +65,8 @@ export class ComfiarController {
         res.json(Commons.sendResponse('Success', { rows }));
       })
       .catch(err => {
-        res.status(400).json(Commons.sendResponse('Error!! al consular el pdf en comfiar..', null, err));
+        log.error('%s %s %s', err);
+        res.status(400).json(Commons.sendResponse('Error!! al consular el pdf en comfiar..', null, err.stack));
       });
   }
 }

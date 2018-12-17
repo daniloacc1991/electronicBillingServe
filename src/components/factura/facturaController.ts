@@ -35,7 +35,6 @@ export class FacturaController {
 
   public static electronicForUser (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    console.log(req.user);
     _modelFactura.electronicforUser(req.user.user)
       .then(rows => {
         log.info('%s %s %s', rows);
@@ -114,7 +113,6 @@ export class FacturaController {
 
   public static invoice (req: Request, res: Response) {
     const _invoice = new Invoice();
-
     _invoice.generarFactura(req.params.numInvoce)
       .then(rows => {
         log.info('%s %s %s', rows);
@@ -129,7 +127,6 @@ export class FacturaController {
   public static viewHeader (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     const _xmlAdmin = new XmlAdmin();
-
     _modelFactura.invoce(req.params.numInvoce)
       .then(rows => {
         const header = _xmlAdmin.headerXML(rows);
@@ -146,7 +143,6 @@ export class FacturaController {
   public static viewDetails (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     const _xmlAdmin = new XmlAdmin();
-
     _modelFactura
       .details(req.params.numInvoce)
       .then(rows => {

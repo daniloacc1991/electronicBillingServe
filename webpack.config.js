@@ -18,7 +18,7 @@ const baseConfig = {
   target: 'node',
   mode: env,
   entry: {
-    index: './index.ts',
+    index: path.resolve('./src/index.ts'),
   },
   output: {
     path: path.resolve('./dist'),
@@ -33,13 +33,15 @@ const baseConfig = {
     }],
   },
   resolve: {
-    extensions: ['.ts', '.js'],
+    extensions: ['.tsx','.ts', '.js'],
     modules: [path.resolve('./src'), 'node_modules'],
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
 };
+
+// console.log(baseConfig);
 
 const developmentConfig = {
   devtool: 'cheap-eval-source-map',

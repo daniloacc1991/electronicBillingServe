@@ -13,7 +13,7 @@ export class Commons {
   public static sendResponse (msj: string, data?: object, err = null) {
     let res: IWrapperResponse;
     if (err) {
-      const development = process.env.NODE_ENV.trim() !== 'prodution';
+      const development = process.env.NODE_ENV.trim() !== 'production';
       if (development) {
         res = { success: false, error: err, message: msj };
       } else {

@@ -41,18 +41,26 @@ export class UserController {
       });
   }
 
+  public static loginError (req: Request, res: Response) {
+    console.log(req);
+    res.status(400)
+      .json(
+        Commons.sendResponse('Error!! Cerrar sesion..', null, 'Usuario y contraseña incorrectos')
+        );
+  }
+
   public static logOff (req: Request, res: Response) {
     console.log(req.body);
     const _modelUsers = new UserModel();
-    _modelUsers.pg_logOff( req.body.token )
-    .then( rows => {
-      log.info(rows);
-      res.json(Commons.sendResponse('Success', {rows} ));
-    })
-    .catch( err => {
-      log.error(err);
-      res.status(400).json(Commons.sendResponse('Error!! Cerrar sesion..', null, err.stack));
-    });
+    _modelUsers.pg_logOff(req.body.token)
+      .then(rows => {
+        log.info(rows);
+        res.json(Commons.sendResponse('Success', { rows }));
+      })
+      .catch(err => {
+        log.error(err);
+        res.status(400).json(Commons.sendResponse('Error!! Cerrar sesion..', null, err.stack));
+      });
   }
 
 }

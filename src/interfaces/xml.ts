@@ -171,8 +171,7 @@ export class XmlAdmin {
             "cbc:RegistrationName": encabezado[0].companyname
           },
           "cac:Contact": {
-            "cbc:Telephone": encabezado[0].companytelephone,
-            "cbc:Note" : encabezado[0].plan
+            "cbc:Telephone": encabezado[0].companytelephone
           }
         }
       },
@@ -210,12 +209,13 @@ export class XmlAdmin {
           },
           "cac:Contact": {
             "cbc:Telephone": encabezado[0].clientphone,
-            "cbc:ElectronicMail": encabezado[0].clientemail
+            "cbc:ElectronicMail": encabezado[0].clientemail,
+            "cbc:Note" : encabezado[0].plan
           },
           "fe:Person": {
-            "cbc:FirstName": encabezado[0].clientid == 2 ? encabezado[0].namecliente : "CLIENTE",
-            "cbc:FamilyName": encabezado[0].clientid == 2 ? encabezado[0].familyname : "",
-            "cbc:MiddleName": encabezado[0].clientid == 2 ? encabezado[0].name2cliente : ""
+            "cbc:FirstName": encabezado[0].clientid === 2 ? encabezado[0].namecliente : "CLIENTE",
+            "cbc:FamilyName": encabezado[0].clientid === 2 ? encabezado[0].familyname : "",
+            "cbc:MiddleName": encabezado[0].clientid === 2 ? encabezado[0].name2cliente : ""
           }
         }
       },

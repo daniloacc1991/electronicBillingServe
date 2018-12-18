@@ -98,7 +98,7 @@ export class ComfiarModel {
       const _result = JSON.parse(xml2json(result, this.optionsXml))['soap:Envelope']['soap:Body'].SalidaTransaccionResponse.SalidaTransaccionResult._text;
       const data = JSON.parse(xml2json(_result, this.optionsXml));
       return new Promise((resolve, reject) => {
-        console.log(data);
+        console.log(JSON.stringify(data));
         if (data.TransaccionError) {
           reject({
             statusCode: 200,
@@ -107,7 +107,7 @@ export class ComfiarModel {
         } else if (data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
           reject({
             statusCode: 200,
-            stack: data.comprobantes.Comprobante.informacionComfiar.mensajes
+            stack: data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
           });
         } else if (data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ACEPTADO') {
           resolve(data.comprobantes.Transaccion);
@@ -158,17 +158,22 @@ export class ComfiarModel {
             stack: _data.ResponseError.Error
           });
         } else {
-          this.parser.xmlToJson( _data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
-            if (err) {
-              reject(err);
-            }
-            resolve({
-              cufe: json['fe:Invoice']['cbc:UUID']
+          if ( _data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
+            reject({
+              stack: _data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
             });
-          });
+          } else {
+            this.parser.xmlToJson( _data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
+              if (err) {
+                reject(err);
+              }
+              resolve({
+                cufe: json['fe:Invoice']['cbc:UUID']
+              });
+            });
+          }
         }
       });
-
     } catch (e) {
       const err = JSON.parse(xml2json(e.error, this.optionsXml));
       throw {
@@ -212,7 +217,7 @@ export class ComfiarModel {
         } else {
           reject({
             statusCodeComfiar: 200,
-            error: 'No se encontró representación grafica',
+            stack: 'No se encontró representación grafica',
             factura: `${prefix}-${invoice}`,
             transaccion: transaccion
           });

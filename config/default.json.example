@@ -1,14 +1,14 @@
 {
   "API_KEY": "#############################################",
-  "name": "API",
+  "name": "api",
   "port": 8080,
   "host": "localhost",
   "db": {
-    "application_name": "billingServer",
-    "database": "NameDatabase",
-    "host": "NameHost Or IOHost",
-    "password": "PasswordUserDB",
-    "port": 5432,
-    "user": "UserDB"
+    "application_name": "nameApplication",
+    "database": "database",
+    "host": "hostBD",
+    "password": "passwordBD",
+    "port": poerDB,
+    "user": "userDB"
   }
 }

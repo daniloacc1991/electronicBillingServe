@@ -9,6 +9,7 @@ import * as helmet from 'helmet';
 import * as methodOverride from 'method-override';
 import * as morgan from 'morgan';
 import * as passport from 'passport';
+import * as configEnv from 'config';
 
 import session = require('cookie-session');
 
@@ -16,9 +17,10 @@ import { NextFunction, Request, Response } from 'express';
 import { DateTime, Settings } from 'luxon';
 
 import { log } from './services';
-import { Routes as UserRouter } from './components/users';
-import { Routes as ComfiarRouter } from './components/comfiar';
-import { Routes as FacturasRouter } from './components/factura';
+import { UserRoutes } from './components/users';
+import { ComfiarRoutes } from './components/comfiar';
+import { FacturaRoutes } from './components/factura';
+import { NotaRoutes } from './components/nota';
 
 Settings.defaultZoneName = 'America/Bogota';
 
@@ -56,7 +58,7 @@ export class Server {
     }));
 
     // use cookie parser Middleware
-    this.app.use(cookieParser(process.env.API_KEY));
+    this.app.use(cookieParser(configEnv.get('API_KEY')));
 
     // use override Middleware
     this.app.use(methodOverride());
@@ -78,7 +80,7 @@ export class Server {
     this.app.use(session({
       domain: 'localhost',
       httpOnly: true,
-      keys: [process.env.API_KEY],
+      keys: [configEnv.get('API_KEY')],
       name: 'session',
       secure: true,
     }));
@@ -98,10 +100,11 @@ export class Server {
       log.info('%s %s %s', req.method, req.url, date);
       next();
     });
-    UserRouter.create(router);
-    ComfiarRouter.create(router);
-    FacturasRouter.create(router);
-    this.app.use('/' + process.env.API_VERSION, router);
+    UserRoutes.create(router);
+    ComfiarRoutes.create(router);
+    FacturaRoutes.create(router);
+    NotaRoutes.create(router);
+    this.app.use('/' + configEnv.get('version'), router);
   }
 
 }

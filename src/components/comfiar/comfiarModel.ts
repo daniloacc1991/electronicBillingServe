@@ -104,6 +104,8 @@ export class ComfiarModel {
             statusCode: 200,
             stack: data
           });
+        } else if (data.TransaccionSinTerminar) {
+          resolve(data.TransaccionSinTerminar.Estado._text);
         } else if (data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
           reject({
             statusCode: 200,

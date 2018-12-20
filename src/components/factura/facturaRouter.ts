@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { FacturaController } from './';
 import { isAuthenticated, isPermit } from '../../services';
 
-export class Routes {
+export class FacturaRoutes {
 
   private static path: string = '/invoice';
 

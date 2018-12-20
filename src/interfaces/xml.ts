@@ -132,7 +132,7 @@ export class XmlAdmin {
         "cbc:ID": encabezado[0].contrato
       },
       "cac:AdditionalDocumentReference": {
-        "cbc:ID": encabezado[0].namepaciente,
+        "cbc:ID": encabezado[0].registro,
         "cbc:DocumentType": encabezado[0].identificationpaciente
       },
       "fe:AccountingSupplierParty": {
@@ -364,5 +364,312 @@ export class XmlAdmin {
       };
     }
     return details;
+  }
+
+  headerNote (nota: any, cb) {
+    return cb({
+      "@": {
+        "xmlns:fe": "http://www.dian.gov.co/contratos/facturaelectronica/v1",
+        "xmlns": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
+        "xmlns:cac": "urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2",
+        "xmlns:cbc": "urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2",
+        "xmlns:ccts": "urn:un:unece:uncefact:documentation:2",
+        "xmlns:clm54217": "urn:un:unece:uncefact:codelist:specification:54217:2001",
+        "xmlns:clm66411": "urn:un:unece:uncefact:codelist:specification:66411:2001",
+        "xmlns:clmIANAMIMEMediaType": "urn:un:unece:uncefact:codelist:specification:IANAMIMEMediaType:2003",
+        "xmlns:ds": "http://www.w3.org/2000/09/xmldsig#",
+        "xmlns:ext": "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2",
+        "xmlns:qdt": "urn:oasis:names:specification:ubl:schema:xsd:QualifiedDatatypes-2",
+        "xmlns:sac": "urn:sunat:names:specification:ubl:peru:schema:xsd:SunatAggregateComponents-1",
+        "xmlns:sts": "http://www.dian.gov.co/contratos/facturaelectronica/v1/Structures",
+        "xmlns:udt": "urn:un:unece:uncefact:data:specification:UnqualifiedDataTypesSchemaModule:2",
+        "xmlns:xsd": "http://www.w3.org/2001/XMLSchema",
+        "xmlns:xsi": "http://www.w3.org/2001/XMLSchema-instance"
+      },
+      "ext:UBLExtensions": {
+        "ext:UBLExtension": {
+          "ext:ExtensionContent": {
+            "sts:DianExtensions": {
+              "sts:InvoiceControl": {
+                "sts:InvoiceAuthorization": nota.invoiceauthorization,
+                "sts:AuthorizationPeriod": {
+                  "cbc:StartDate": nota.startdate,
+                  "cbc:EndDate": nota.enddate
+                },
+                "sts:AuthorizedInvoices": {
+                  "sts:Prefix": nota.prefix,
+                  "sts:From": nota.from,
+                  "sts:To": nota.to
+                }
+              },
+              "sts:InvoiceSource": {
+                "cbc:IdentificationCode": {
+                  "@": {
+                    "listAgencyID": 6,
+                    "listAgencyName": "United Nations Economic Commission for Europe",
+                    "listSchemeURI": "urn:oasis:names:specification:ubl:codelist:gc:CountryIdentificationCode2.0"
+                  },
+                  "#": "CO"
+                }
+              },
+              "sts:SoftwareProvider": {
+                "sts:ProviderID": {
+                  "@": {
+                    "schemeAgencyID": 195,
+                    "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+                  },
+                  "#": ""
+                },
+                "sts:SoftwareID": {
+                  "@": {
+                    "schemeAgencyID": 195,
+                    "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+                  },
+                  "#": ""
+                }
+              },
+              "sts:SoftwareSecurityCode": {
+                "@": {
+                  "schemeAgencyID": 195,
+                  "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+                },
+                "#": ""
+              }
+            }
+          }
+        }
+      },
+      "cbc:UBLVersionID" : "UBL 2.0",
+      "cbc:ProfileID" : "DIAN 1.0",
+      "cbc:ID" : nota.note,
+      "cbc:UUID": {
+        "@": {
+          "schemeAgencyID": "195",
+          "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+        },
+        "#": ""
+      },
+      "cbc:IssueDate": nota.issuedate,
+      "cbc:IssueTime": nota.issuetime,
+      "cbc:Note": [
+        {
+          "#": nota.datein
+        },
+        {
+          "#": nota.dateout
+        },
+        {
+          "#": nota.observation ? nota.observation : ''
+        },
+        {
+          "#": nota.producedby
+        },
+        {
+          "#": nota.printdate
+        },
+        {
+          "#": nota.cufe
+        },
+        {
+          "#": nota.description.replace('Ń', 'Ñ')
+        }
+      ],
+      "cbc:DocumentCurrencyCode": "COP",
+      "cac:BillingReference": {
+        "cac:InvoiceDocumentReference": {
+          "cbc:ID": nota.invoice,
+          "cbc:UUID": nota.cufe,
+          "cbc:IssueDate": nota.invoice_issuedate
+        }
+      },
+      "cac:AdditionalDocumentReference": {
+        "cbc:ID": nota.description.replace('Ń', 'Ñ'),
+        "cbc:DocumentType": nota.document_paciente
+      },
+      "fe:AccountingSupplierParty": {
+        "cbc:AdditionalAccountID": nota.companyaccountid,
+        "fe:Party": {
+          "cac:PartyIdentification": {
+            "cbc:ID": {
+              "@": {
+                "schemeAgencyID": 195,
+                "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)",
+                "schemeID": nota.companytypedocument
+              },
+              "#": nota.companydocument
+            }
+          },
+          "cac:PartyName": {
+            "cbc:Name": nota.companyname
+          },
+          "fe:PhysicalLocation": {
+            "fe:Address": {
+              "cbc:Department": nota.companydepartment,
+              "cbc:CityName": nota.companycity,
+              "cac:AddressLine": {
+                "cbc:Line": nota.companyaddress,
+              },
+              "cac:Country": {
+                "cbc:IdentificationCode": "CO"
+              }
+            }
+          },
+          "fe:PartyTaxScheme": {
+            "cbc:TaxLevelCode": nota.companyregimen,
+            "cac:TaxScheme": ""
+          },
+          "fe:PartyLegalEntity": {
+            "cbc:RegistrationName": nota.companyname
+          },
+          "cac:Contact": {
+            "cbc:Telephone": nota.companytelephone
+          }
+        }
+      },
+      "fe:AccountingCustomerParty": {
+        "cbc:AdditionalAccountID": nota.clientaccountid,
+        "fe:Party": {
+          "cac:PartyIdentification": {
+            "cbc:ID": {
+              "@": {
+                "schemeAgencyID": 195,
+                "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)",
+                "schemeID": nota.clienttypedocument
+              },
+              "#": nota.clientdocument
+            }
+          },
+          "fe:PhysicalLocation": {
+            "fe:Address": {
+              "cbc:Department": nota.clientdepartment,
+              "cbc:CityName": nota.clientcity,
+              "cac:AddressLine": {
+                "cbc:Line": nota.clientaddress
+              },
+              "cac:Country": {
+                "cbc:IdentificationCode": "CO"
+              }
+            }
+          },
+          "fe:PartyTaxScheme": {
+            "cbc:TaxLevelCode": nota.clientregimen,
+            "cac:TaxScheme": ""
+          },
+          "fe:PartyLegalEntity": {
+            "cbc:RegistrationName": nota.clientname
+          },
+          "cac:Contact": {
+            "cbc:Telephone": nota.clienttelephone,
+            "cbc:ElectronicMail": nota.clientemail,
+            "cbc:Note": nota.plan
+          },
+          "fe:Person": {
+            "cbc:FirstName": nota.clientid === 2 ? nota.firstname : "CLIENTE",
+            "cbc:FamilyName": nota.clientid === 2 ? nota.familyname : "",
+            "cbc:MiddleName": nota.clientid === 2 ? nota.middlename : ""
+          }
+        }
+      },
+      "fe:TaxTotal": {
+        "cbc:TaxAmount": {
+          "@": {
+            "currencyID": "COP"
+          },
+          "#": 0
+        },
+        "cbc:TaxEvidenceIndicator": false,
+        "fe:TaxSubtotal": {
+          "cbc:TaxableAmount": {
+            "@": {
+              "currencyID": "COP"
+            },
+            "#": 0.00
+          },
+          "cbc:TaxAmount": {
+            "@": {
+              "currencyID": "COP"
+            },
+            "#": 0.00
+          },
+          "cbc:Percent": 0.00,
+          "cac:TaxCategory": {
+            "cac:TaxScheme": {
+              "cbc:ID": "01"
+            }
+          }
+        }
+      },
+      "fe:LegalMonetaryTotal": {
+        "cbc:LineExtensionAmount": {
+          "@": {
+            "currencyID": "COP"
+          },
+          "#": nota.subtotal ? nota.subtotal : 0
+        },
+        "cbc:TaxExclusiveAmount": {
+          "@": {
+            "currencyID": "COP"
+          },
+          "#": nota.taxestotal ? nota.taxestotal : 0
+        },
+        "cbc:AllowanceTotalAmount": {
+          "@": {
+            "currencyID": "COP"
+          },
+          "#": nota.discountstotal ? nota.discountstotal : 0
+        },
+        "cbc:PayableAmount": {
+          "@": {
+            "currencyID": "COP"
+          },
+          "#": nota.paytotal ? nota.paytotal : 0
+        }
+      }
+    });
+  }
+
+  bodyNote (note: any, cb) {
+    return cb({
+      "cbc:ID": {
+        "@": {
+          "schemeAgencyID": 195,
+          "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+        },
+        "#": note.id
+      },
+      "cbc:UUID": {
+        "@": {
+          "schemeAgencyID": 195,
+          "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+        },
+        "#": ""
+      },
+      "cbc:Note": note.concept,
+      "cbc:DebitedQuantity": note.debitedquantity,
+      "cbc:LineExtensionAmount": {
+        "@": {
+          "currencyID": "COP"
+        },
+        "#": note.lineextensionamount
+      },
+      "cac:Item": {
+        "cbc:Description": note.description,
+        "cac:ManufacturersItemIdentification": {
+          "cbc:ID": note.codreference
+        },
+        "cac:AdditionalItemProperty": {
+          "cbc:Name": "Total Grupo",
+          "cbc:Value": note.totalgroup
+        },
+        "cac:Price": {
+          "cbc:PriceAmount": {
+            "@": {
+              "currencyID": "COP"
+            },
+            "#": note.priceamount
+          }
+        }
+      }
+    });
   }
 }

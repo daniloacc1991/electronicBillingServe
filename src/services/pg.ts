@@ -19,19 +19,19 @@ export class ModelPg {
     return new Pool(config);
   }
 
-  public json_to_text (obj) {
-    let text = '';
-    if (obj.length > 1) {
-      obj.forEach(function (elm, i, array) {
-        if (elm != null && elm != false) {
-          text += `'${JSON.stringify(elm)}'`;
-        }
-      });
-      text = text.slice(0, -1);
-    } else {
-      text = `'${JSON.stringify(obj)}'`;
-    }
-    return text;
-  }
+  // public json_to_text (obj) {
+  //   let text = '';
+  //   if (obj.length > 1) {
+  //     obj.forEach(function (elm, i, array) {
+  //       if (elm != null && elm != false) {
+  //         text += `'${JSON.stringify(elm)}'`;
+  //       }
+  //     });
+  //     text = text.slice(0, -1);
+  //   } else {
+  //     text = `'${JSON.stringify(obj)}'`;
+  //   }
+  //   return text;
+  // }
 
 }

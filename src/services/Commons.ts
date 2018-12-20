@@ -17,7 +17,7 @@ export class Commons {
       if (development) {
         res = { success: false, error: err, message: msj };
       } else {
-        res = { success: false, message: msj };
+        res = { success: false, error: err, message: msj };
       }
     } else {
       if (data) {

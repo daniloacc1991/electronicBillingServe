@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { ComfiarController } from './';
 import { isAuthenticated, isPermit } from '../../services';
 
-export class Routes {
+export class ComfiarRoutes {
 
   private static path: string = '/comfiar';
 

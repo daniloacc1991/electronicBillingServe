@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { UserController } from './';
 import { isAuthenticatedLocalClient, isAuthenticated, isPermit } from '../../services';
 
-export class Routes {
+export class UserRoutes {
 
   private static path: string = '/user';
 

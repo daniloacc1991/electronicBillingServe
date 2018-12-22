@@ -1,3 +1,4 @@
+import * as config from 'config';
 import { Request, Response } from 'express';
 import { Commons, log } from '../../services';
 import { FacturaModel } from './';
@@ -63,6 +64,10 @@ export class FacturaController {
     const _modelFactura = new FacturaModel();
     _modelFactura.invoicesSent(req.user.user)
       .then(rows => {
+        rows = rows.map( f => {
+          f.path_pdf = `http://${config.get('host')}:${config.get('port')}${f.path_pdf}`;
+          return f;
+        });
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
       })
@@ -137,7 +142,22 @@ export class FacturaController {
         log.error('%s %s %s', err);
         res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, err.stack));
       });
+  }
 
+  public static viewPDF (req: Request, res: Response) {
+    const _modelFactura = new FacturaModel();
+    _modelFactura.getPDF(req.params.invoice)
+      .then(row => {
+        const rows = {
+          path: `http://${config.get('host')}:${config.get('port')}${row.path_pdf}`
+        };
+        log.info('%s %s %s', rows);
+        res.json(Commons.sendResponse('Success', { rows }));
+      })
+      .catch(err => {
+        log.error('%s %s %s', err);
+        res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, err.stack));
+      });
   }
 
   public static viewDetails (req: Request, res: Response) {

@@ -10,6 +10,9 @@ config/*.json
 # Compilación
 dist/
 
+#File Static
+public/
+
 # Runtime data
 pids
 *.pid

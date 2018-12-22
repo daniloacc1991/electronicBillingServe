@@ -9,7 +9,7 @@ export class FacturaModel extends ModelPg {
     this._pg = this.pg();
   }
 
-  async invoicePending (user: string) {
+  public async invoicePending (user: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_pending($1)`, [user]);
       return rows.map( t => {
@@ -20,7 +20,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async forYearUser (date: string, user: string) {
+  public async forYearUser (date: string, user: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_for_Year_User($1, $2)`, [date, user]);
       return rows.map( t => {
@@ -31,7 +31,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async electronicforUser (user: string) {
+  public async electronicforUser (user: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_elec_for_user($1)`, [user]);
       return rows.map( t => {
@@ -42,7 +42,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async cufePending (user: string) {
+  public async cufePending (user: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_cufe_pending($1)`, [user]);
       return rows.map( t => {
@@ -53,7 +53,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async invoicesSent (user: string) {
+  public async invoicesSent (user: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1)`, [user]);
       return rows.map( t => {
@@ -64,7 +64,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async saveTransaccion (invoice: string, id: number) {
+  public async saveTransaccion (invoice: string, id: number) {
     try {
       const { rows } = await this._pg.query(`UPDATE factura SET fe_id_transaccion = $2, fe_fecha_transaccion = now()::timestamp, ind_fe_enviada = 'S' WHERE factura = $1
         returning factura, fe_id_transaccion, fe_fecha_transaccion`, [invoice, id]);
@@ -74,7 +74,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async deleteTransaccion (invoice: string) {
+  public async deleteTransaccion (invoice: string) {
     try {
       const { rows } = await this._pg.query(`UPDATE factura SET fe_id_transaccion = null, fe_fecha_transaccion = null, ind_fe_enviada = 'N' WHERE factura = $1
           returning factura, fe_id_transaccion, fe_fecha_transaccion`, [invoice]);
@@ -84,7 +84,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async saveCufe (cufe: string, invoice: string) {
+  public async saveCufe (cufe: string, invoice: string) {
     try {
       const { rows } = await this._pg.query(`UPDATE factura SET cufe = $1 WHERE factura = $2
         returning factura, cufe`, [cufe, invoice]);
@@ -94,7 +94,34 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async invoce (factura: string) {
+  public async getPath (invoice: string) {
+    try {
+      const { rows } = await this._pg.query(`SELECT factura, empresa, TO_CHAR(fecha, 'YYYY') As year, TO_CHAR(fecha, 'MM') As month FROM factura WHERE factura = $1`, [invoice]);
+      return ((!rows) ? {} : rows[0]);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async savePath (invoice: string, path: string) {
+    try {
+      const { rows } = await this._pg.query(`UPDATE factura SET path_pdf = $2 WHERE factura = $1 RETURNING factura, path_pdf`, [invoice, path]);
+      return ((!rows) ? {} : rows[0]);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async getPDF (invoice: string) {
+    try {
+      const { rows } = await this._pg.query(`SELECT path_pdf FROM factura WHERE factura = $1`, [invoice]);
+      return ((!rows) ? {} : rows[0]);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async invoce (factura: string) {
     try {
       const tipoEmpresa = await this._pg.query(`SELECT empresa.tipo_empresa as tipo FROM factura JOIN empresa ON factura.empresa = empresa.empresa WHERE factura.factura = $1`, [factura]);
       if (tipoEmpresa.rows[0].tipo === '26') {
@@ -113,7 +140,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  async details (factura: string) {
+  public async details (factura: string) {
     let query;
     try {
       const typeInvoce = await this._pg.query(`SELECT fe_tipo_factura.fe_tipo_factura FROM factura JOIN fe_tipo_factura ON fe_tipo_factura.fe_tipo_factura = factura.fe_tipo_factura

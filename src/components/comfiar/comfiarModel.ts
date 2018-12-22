@@ -102,7 +102,7 @@ export class ComfiarModel {
         if (data.TransaccionError) {
           reject({
             statusCode: 200,
-            stack: data
+            stack: data.TransaccionError.Error._text
           });
         } else if (data.TransaccionSinTerminar) {
           resolve(data.TransaccionSinTerminar.Estado._text);
@@ -242,7 +242,6 @@ export class ComfiarModel {
         ${body}
       </soap:Body>
     </soap:Envelope>`;
-
     const options = {
       method: method,
       uri: 'http://test.comfiar.co/ws/WSComfiar.asmx',

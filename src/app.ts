@@ -8,6 +8,7 @@ import * as expressStatusMonitor from 'express-status-monitor';
 import * as helmet from 'helmet';
 import * as methodOverride from 'method-override';
 import * as morgan from 'morgan';
+import * as path from 'path';
 import * as passport from 'passport';
 import * as configEnv from 'config';
 
@@ -56,6 +57,9 @@ export class Server {
       extended: true,
       limit: '50mb'
     }));
+
+    // Folder Static
+    this.app.use(express.static(path.join(__dirname, '..', 'public')));
 
     // use cookie parser Middleware
     this.app.use(cookieParser(configEnv.get('API_KEY')));

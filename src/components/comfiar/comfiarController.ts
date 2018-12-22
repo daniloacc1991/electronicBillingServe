@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { Commons, log } from '../../services/';
+import { Commons, log, DecodePDF } from '../../services/';
 
 import { ComfiarModel } from './';
+
 
 export class ComfiarController {
 
@@ -59,10 +60,19 @@ export class ComfiarController {
 
   public static consultarPDF (req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
+    log.info('%s %s %s', req.body);
     _comfiar.consultarPDF(req.body.token, req.body.date, req.body.invoice, req.body.transaccion)
       .then(rows => {
         // log.info('%s %s %s', rows);
-        res.json(Commons.sendResponse('Success', { rows }));
+        DecodePDF.converToPdf(rows, req.body.invoice)
+          .then( r => {
+            log.info('%s %s %s', r);
+            res.json(Commons.sendResponse('Success', { rows }));
+          })
+          .catch( err => {
+            log.error('%s %s %s', err);
+            res.status(400).json(Commons.sendResponse('Error!! al consular el pdf en comfiar..', null, err.stack));
+          });
       })
       .catch(err => {
         log.error('%s %s %s', err);

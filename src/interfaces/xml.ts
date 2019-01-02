@@ -35,8 +35,8 @@ export class XmlAdmin {
                 },
                 "sts:AuthorizedInvoices": {
                   "sts:Prefix": encabezado[0].prefix,
-                  "sts:From": encabezado[0].from,
-                  "sts:To": encabezado[0].to
+                  "sts:From": encabezado[0].rfrom,
+                  "sts:To": encabezado[0].rto
                 }
               },
               "sts:InvoiceSource": {
@@ -113,13 +113,13 @@ export class XmlAdmin {
           "#": encabezado[0].printdate
         },
         {
-          "#": encabezado[0].registro
+          "#": encabezado[0].register
         },
         {
           "#": encabezado[0].totaldiscount
         },
         {
-          "#": encabezado[0].codedescuento
+          "#": encabezado[0].codediscount
         }
       ],
       "cbc:DocumentCurrencyCode": "COP",
@@ -129,23 +129,23 @@ export class XmlAdmin {
         }
       },
       "cac:ContractDocumentReference": {
-        "cbc:ID": encabezado[0].contrato
+        "cbc:ID": encabezado[0].contract
       },
       "cac:AdditionalDocumentReference": {
-        "cbc:ID": encabezado[0].registro,
-        "cbc:DocumentType": encabezado[0].identificationpaciente
+        "cbc:ID": encabezado[0].register,
+        "cbc:DocumentType": encabezado[0].identificationpatient
       },
       "fe:AccountingSupplierParty": {
-        "cbc:AdditionalAccountID": encabezado[0].additionalaccountid,
+        "cbc:AdditionalAccountID": encabezado[0].companyaccountid,
         "fe:Party": {
           "cac:PartyIdentification": {
             "cbc:ID": {
               "@": {
                 "schemeAgencyID": "195",
                 "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)",
-                "schemeID": encabezado[0].typeidentitydocument
+                "schemeID": encabezado[0].companytypedocument
               },
-              "#": encabezado[0].numberidentitydocument
+              "#": encabezado[0].companydocument
             }
           },
           "cac:PartyName": {
@@ -154,9 +154,9 @@ export class XmlAdmin {
           "fe:PhysicalLocation": {
             "fe:Address": {
               "cbc:Department": encabezado[0].companydepartment,
-              "cbc:CityName": encabezado[0].companycityname,
+              "cbc:CityName": encabezado[0].companycity,
               "cac:AddressLine": {
-                "cbc:Line": encabezado[0].companyaddressline
+                "cbc:Line": encabezado[0].companyaddress
               },
               "cac:Country": {
                 "cbc:IdentificationCode": "CO"
@@ -164,7 +164,7 @@ export class XmlAdmin {
             }
           },
           "fe:PartyTaxScheme": {
-            "cbc:TaxLevelCode": 2,
+            "cbc:TaxLevelCode": encabezado[0].companyregimen,
             "cac:TaxScheme": ""
           },
           "fe:PartyLegalEntity": {
@@ -176,16 +176,16 @@ export class XmlAdmin {
         }
       },
       "fe:AccountingCustomerParty": {
-        "cbc:AdditionalAccountID": encabezado[0].clientid,
+        "cbc:AdditionalAccountID": encabezado[0].clientaccountid,
         "fe:Party": {
           "cac:PartyIdentification": {
             "cbc:ID": {
               "@": {
                 "schemeAgencyID": "195",
                 "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)",
-                "schemeID": encabezado[0].clienttypeidentitydocument
+                "schemeID": encabezado[0].clienttypedocument
               },
-              "#": encabezado[0].clientnumberidentitydocument
+              "#": encabezado[0].clientdocument
             }
           },
           "fe:PhysicalLocation": {
@@ -193,29 +193,29 @@ export class XmlAdmin {
               "cbc:Department": encabezado[0].clientdepartment,
               "cbc:CityName": encabezado[0].clientcity,
               "cac:AddressLine": {
-                "cbc:Line": encabezado[0].clientaddressline
+                "cbc:Line": encabezado[0].clientaddress.toLocaleUpperCase()
               },
               "cac:Country": {
-                "cbc:IdentificationCode": encabezado[0].clientcountrycode
+                "cbc:IdentificationCode": "CO"
               }
             }
           },
           "fe:PartyTaxScheme": {
-            "cbc:TaxLevelCode": 2,
+            "cbc:TaxLevelCode": encabezado[0].clientregimen,
             "cac:TaxScheme": ""
           },
           "fe:PartyLegalEntity": {
             "cbc:RegistrationName": encabezado[0].clientname
           },
           "cac:Contact": {
-            "cbc:Telephone": encabezado[0].clientphone,
+            "cbc:Telephone": encabezado[0].clienttelephone,
             "cbc:ElectronicMail": encabezado[0].clientemail,
             "cbc:Note" : encabezado[0].plan
           },
           "fe:Person": {
-            "cbc:FirstName": encabezado[0].clientid === 2 ? encabezado[0].namecliente : "CLIENTE",
-            "cbc:FamilyName": encabezado[0].clientid === 2 ? encabezado[0].familyname : "",
-            "cbc:MiddleName": encabezado[0].clientid === 2 ? encabezado[0].name2cliente : ""
+            "cbc:FirstName": encabezado[0].clientaccountid === 2 ? encabezado[0].firstname : "CLIENTE",
+            "cbc:FamilyName": encabezado[0].clientaccountid === 2 ? encabezado[0].familyname : "",
+            "cbc:MiddleName": encabezado[0].clientaccountid === 2 ? encabezado[0].middlename : ""
           }
         }
       },

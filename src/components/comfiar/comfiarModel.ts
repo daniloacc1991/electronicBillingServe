@@ -58,7 +58,7 @@ export class ComfiarModel {
       <cuitAProcesar>890208758</cuitAProcesar>
       <puntoDeVentaId>10001</puntoDeVentaId>
       <tipoDeComprobanteId>1</tipoDeComprobanteId>
-      <formatoId>94</formatoId>
+      <formatoId>87</formatoId>
       <token>
         <SesionId>${token}</SesionId>
         <FechaVencimiento>${date}</FechaVencimiento>
@@ -157,7 +157,7 @@ export class ComfiarModel {
         if (_data.ResponseError) {
           reject({
             statusCodeComfiar: 200,
-            stack: _data.ResponseError.Error
+            stack: _data.ResponseError.Error._text
           });
         } else {
           if ( _data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
@@ -244,7 +244,7 @@ export class ComfiarModel {
     </soap:Envelope>`;
     const options = {
       method: method,
-      uri: 'http://test.comfiar.co/ws/WSComfiar.asmx',
+      uri: 'https://app2.comfiar.co/ws/WSComfiar.asmx',
       headers: {
         'User-Agent': 'Request-Promise',
         'Content-Type': 'text/xml; charset=utf-8',

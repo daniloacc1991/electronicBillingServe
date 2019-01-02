@@ -13,7 +13,7 @@ export class FacturaModel extends ModelPg {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_pending($1)`, [user]);
       return rows.map( t => {
-        return t.fn_invoces_pending;
+        return t;
       });
     } catch (e) {
       throw e;
@@ -24,7 +24,7 @@ export class FacturaModel extends ModelPg {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_for_Year_User($1, $2)`, [date, user]);
       return rows.map( t => {
-        return t.fn_invoces_for_year_user;
+        return t;
       });
     } catch (e) {
       throw e;
@@ -35,7 +35,7 @@ export class FacturaModel extends ModelPg {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_elec_for_user($1)`, [user]);
       return rows.map( t => {
-        return t.fn_invoces_elec_for_user;
+        return t;
       });
     } catch (e) {
       throw e;
@@ -46,7 +46,7 @@ export class FacturaModel extends ModelPg {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_cufe_pending($1)`, [user]);
       return rows.map( t => {
-        return t.fn_invoces_cufe_pending;
+        return t;
       });
     } catch (e) {
       throw e;
@@ -57,7 +57,7 @@ export class FacturaModel extends ModelPg {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1)`, [user]);
       return rows.map( t => {
-        return t.fn_invoces_sent;
+        return t;
       });
     } catch (e) {
       throw e;
@@ -76,8 +76,7 @@ export class FacturaModel extends ModelPg {
 
   public async deleteTransaccion (invoice: string) {
     try {
-      const { rows } = await this._pg.query(`UPDATE factura SET fe_id_transaccion = null, fe_fecha_transaccion = null, ind_fe_enviada = 'N' WHERE factura = $1
-          returning factura, fe_id_transaccion, fe_fecha_transaccion`, [invoice]);
+      const { rows } = await this._pg.query(`UPDATE factura SET fe_id_transaccion = null, fe_fecha_transaccion = null, ind_fe_enviada = 'N' WHERE factura = $1 returning factura, fe_id_transaccion, fe_fecha_transaccion`, [invoice]);
       return rows;
     } catch (e) {
       throw e;
@@ -86,8 +85,7 @@ export class FacturaModel extends ModelPg {
 
   public async saveCufe (cufe: string, invoice: string) {
     try {
-      const { rows } = await this._pg.query(`UPDATE factura SET cufe = $1 WHERE factura = $2
-        returning factura, cufe`, [cufe, invoice]);
+      const { rows } = await this._pg.query(`UPDATE factura SET cufe = $1, fe_fecha_cufe = now() WHERE factura = $2 returning factura, cufe`, [cufe, invoice]);
       return rows;
     } catch (e) {
       throw e;
@@ -123,16 +121,21 @@ export class FacturaModel extends ModelPg {
 
   public async invoce (factura: string) {
     try {
-      const tipoEmpresa = await this._pg.query(`SELECT empresa.tipo_empresa as tipo FROM factura JOIN empresa ON factura.empresa = empresa.empresa WHERE factura.factura = $1`, [factura]);
-      if (tipoEmpresa.rows[0].tipo === '26') {
-        const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_employes($1)`, [factura]);
+      const tipoEmpresa = await this._pg.query(`SELECT te.concepto_deudor tipo FROM factura f JOIN empresa e ON e.empresa = f.empresa JOIN tipo_empresa te ON te.tipo_empresa = e.tipo_empresa
+      WHERE f.factura = $1`, [factura]);
+      if (tipoEmpresa.rows[0].tipo == '7') {
+        const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_persons($1)`, [factura]);
         return rows.map( t => {
-          return t.fn_invoces_employes;
+          const namesplit: string[] = t.clientname.split(' ');
+          const position = namesplit.length;
+          t.firstname = namesplit[0];
+          t.familyname = namesplit[position - 2] + ' ' + namesplit[position - 1];
+          return t;
         });
       } else {
         const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_bussines($1)`, [factura]);
         return rows.map( t => {
-          return t.fn_invoces_bussines;
+          return t;
         });
       }
     } catch (e) {

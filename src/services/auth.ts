@@ -9,14 +9,16 @@ import { log } from './';
 
 passport.use('local-user', new localStrategy({ passwordField: 'pass', usernameField: 'user' }, (user, pass, done) => {
   const _userModel = new UserModel();
-  _userModel.pg_login(user, pass).then((user) => {
-    if (!user) {
-      return done(null, false);
-    }
-    return done(null, user.user);
-  }).catch((err) => {
-    done(err.stack);
-  });
+  _userModel.pg_login(user, pass)
+    .then((user) => {
+      if (!user) {
+        return done(null, false);
+      }
+      return done(null, user);
+    })
+    .catch((err) => {
+      done(err.stack);
+    });
 }));
 
 passport.use('bearer', new BearerStrategy((token, done) => {

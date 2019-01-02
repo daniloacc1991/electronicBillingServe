@@ -11,7 +11,7 @@ export class UserModel extends ModelPg {
 
   public async pg_login (user: string, password: string) {
     try {
-      const { rows } = await this._pg.query(`SELECT fn_verify_login($1, $2) AS user`, [user, password]);
+      const { rows } = await this._pg.query(`SELECT * FROM fn_verify_login($1, $2)`, [user, password]);
       return ((!rows) ? {} : rows[0]);
     } catch (e) {
       throw e;

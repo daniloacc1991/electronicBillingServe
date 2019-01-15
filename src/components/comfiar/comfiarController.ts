@@ -21,7 +21,7 @@ export class ComfiarController {
 
   public static enviarFactura (req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
-    _comfiar.enviarFactura(req.body.token, req.body.date, req.body.invoice)
+    _comfiar.enviarFactura(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -47,7 +47,7 @@ export class ComfiarController {
 
   public static respuestaComprobante (req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
-    _comfiar.respuestaComprobante(req.body.token, req.body.date, req.body.invoice, req.body.transaccion)
+    _comfiar.respuestaComprobante(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -60,8 +60,7 @@ export class ComfiarController {
 
   public static consultarPDF (req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
-    log.info('%s %s %s', req.body);
-    _comfiar.consultarPDF(req.body.token, req.body.date, req.body.invoice, req.body.transaccion)
+    _comfiar.consultarPDF(req.body.token, req.body.date, req.body.invoice, req.body.transaccion, req.body.puntoVenta)
       .then(rows => {
         // log.info('%s %s %s', rows);
         DecodePDF.converToPdf(rows, req.body.invoice)

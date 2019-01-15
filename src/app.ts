@@ -51,7 +51,7 @@ export class Server {
     // Mount Logger
     this.app.use(morgan('dev'));
     // use json form parser Middleware
-    this.app.use(bodyParser.json({limit: '50mb'}));
+    this.app.use(bodyParser.json({ limit: '50mb'}));
     // use query string parser Middleware
     this.app.use(bodyParser.urlencoded({
       extended: true,
@@ -81,13 +81,13 @@ export class Server {
     this.app.use(helmet());
 
     // session
-    this.app.use(session({
-      domain: 'localhost',
-      httpOnly: true,
-      keys: [configEnv.get('API_KEY')],
-      name: 'session',
-      secure: true,
-    }));
+    // this.app.use(session({
+    //   domain: 'localhost',
+    //   httpOnly: true,
+    //   keys: [configEnv.get('API_KEY')],
+    //   name: 'session',
+    //   secure: true,
+    // }));
 
     // passport
     this.app.use(passport.initialize());

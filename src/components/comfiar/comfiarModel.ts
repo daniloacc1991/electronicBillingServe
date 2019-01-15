@@ -52,11 +52,11 @@ export class ComfiarModel {
     }
   }
 
-  public async enviarFactura (token: string, date: any, invoice: string) {
+  public async enviarFactura (token: string, date: any, invoice: string, puntoVenta: number) {
     const _xml = `<AutorizarComprobantesAsincronico xmlns="http://comfiar.com.ar/webservice/">
       <XML><![CDATA[${invoice}]]></XML>
       <cuitAProcesar>890208758</cuitAProcesar>
-      <puntoDeVentaId>10001</puntoDeVentaId>
+      <puntoDeVentaId>${puntoVenta}</puntoDeVentaId>
       <tipoDeComprobanteId>1</tipoDeComprobanteId>
       <formatoId>87</formatoId>
       <token>
@@ -128,18 +128,16 @@ export class ComfiarModel {
     }
   }
 
-  public async respuestaComprobante (token: string, date: any, invoice: string, transaccion: number) {
-    let ventaId;
+  public async respuestaComprobante (token: string, date: any, invoice: string, puntoVenta: number) {
+
     const n = invoice.indexOf('-');
     if (n < 0) {
-      ventaId = 10000;
     } else {
-      ventaId = 10001;
       invoice = invoice.split('-')[1];
     }
     const _xml = `<RespuestaComprobante xmlns="http://comfiar.com.ar/webservice/">
       <cuitId>890208758</cuitId>
-      <puntoDeVentaId>${ventaId}</puntoDeVentaId>
+      <puntoDeVentaId>${puntoVenta}</puntoDeVentaId>
       <tipoDeComprobanteId>1</tipoDeComprobanteId>
       <nroCbte>${invoice}</nroCbte>
       <token>
@@ -186,21 +184,18 @@ export class ComfiarModel {
     }
   }
 
-  public async consultarPDF (token: string, date: any, invoice: string, transaccion: number) {
-    let ventaId;
+  public async consultarPDF (token: string, date: any, invoice: string, transaccion: number, puntoVenta: number) {
     let prefix;
     const n = invoice.indexOf('-');
     if (n < 0) {
-      ventaId = 10000;
     } else {
-      ventaId = 10001;
       prefix = invoice.split('-')[0];
       invoice = invoice.split('-')[1];
     }
     const _xml = `<DescargarPdf xmlns="http://comfiar.com.ar/webservice/">
         <transaccionId>${transaccion}</transaccionId>
         <cuitId>890208758</cuitId>
-        <puntoDeVentaId>${ventaId}</puntoDeVentaId>
+        <puntoDeVentaId>${puntoVenta}</puntoDeVentaId>
         <tipoComprobanteId>1</tipoComprobanteId>
         <numeroComprobante>${invoice}</numeroComprobante>
         <token>

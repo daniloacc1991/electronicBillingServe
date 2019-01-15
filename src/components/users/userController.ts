@@ -9,7 +9,6 @@ import { sign } from 'jsonwebtoken';
 import { IClaims } from '../../interfaces/jtw';
 import { Commons, log } from '../../services';
 import { UserModel } from './';
-import { token } from 'morgan';
 
 export class UserController {
 
@@ -28,8 +27,10 @@ export class UserController {
       scope: 'USER',
       user: user.usuario
     };
+    console.log('Despues del IClaims');
     const token = sign(data, config.get('API_KEY'), { algorithm: 'HS512' });
     const _modelUsers = new UserModel();
+    console.log('guardadno Token');
     _modelUsers.pg_SaveToken(token, user.id)
       .then(resp => {
         log.info(req.user);

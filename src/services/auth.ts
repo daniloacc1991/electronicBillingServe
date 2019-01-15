@@ -9,8 +9,10 @@ import { log } from './';
 
 passport.use('local-user', new localStrategy({ passwordField: 'pass', usernameField: 'user' }, (user, pass, done) => {
   const _userModel = new UserModel();
-  _userModel.pg_login(user, pass)
+  const password = pass.replace(new RegExp(' ', 'g'), '+');
+  _userModel.pg_login(user, password)
     .then((user) => {
+      // console.log(user);
       if (!user) {
         return done(null, false);
       }

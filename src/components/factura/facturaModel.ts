@@ -121,9 +121,9 @@ export class FacturaModel extends ModelPg {
 
   public async invoce (factura: string) {
     try {
-      const tipoEmpresa = await this._pg.query(`SELECT te.concepto_deudor tipo FROM factura f JOIN empresa e ON e.empresa = f.empresa JOIN tipo_empresa te ON te.tipo_empresa = e.tipo_empresa
-      WHERE f.factura = $1`, [factura]);
-      if (tipoEmpresa.rows[0].tipo == '7') {
+      const tipoEmpresa = await this._pg.query(`SELECT e.fe_persona_natural tipo FROM factura f
+        JOIN empresa e ON e.empresa = f.empresa WHERE f.factura = $1`, [factura]);
+      if (tipoEmpresa.rows[0].tipo == 'S') {
         const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_persons($1)`, [factura]);
         return rows.map( t => {
           const namesplit: string[] = t.clientname.split(' ');

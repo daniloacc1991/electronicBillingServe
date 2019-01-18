@@ -12,7 +12,7 @@ import * as path from 'path';
 import * as passport from 'passport';
 import * as configEnv from 'config';
 
-import session = require('cookie-session');
+// import session = require('cookie-session');
 
 import { NextFunction, Request, Response } from 'express';
 import { DateTime, Settings } from 'luxon';

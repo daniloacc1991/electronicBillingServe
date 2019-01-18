@@ -53,12 +53,10 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  public async invoicesSent (user: string) {
+  public async invoicesSent (userI: string, userF: string) {
     try {
-      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1)`, [user]);
-      return rows.map( t => {
-        return t;
-      });
+      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1, $2)`, [userI, userF]);
+      return rows;
     } catch (e) {
       throw e;
     }

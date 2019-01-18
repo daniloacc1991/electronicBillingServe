@@ -8,6 +8,7 @@ export class UserRoutes {
 
   public static create (router: Router) {
     router.post(`${this.path}/login`, isAuthenticatedLocalClient, UserController.login);
-    router.put(`${this.path}/logoff`, isAuthenticated, isPermit(['USER']), UserController.logOff);
+    router.put(`${this.path}/logoff`, isAuthenticated, isPermit(['USER', 'ADMIN']), UserController.logOff);
+    router.get(`${this.path}/menu`, isAuthenticated, isPermit(['USER', 'ADMIN']), UserController.menu);
   }
 }

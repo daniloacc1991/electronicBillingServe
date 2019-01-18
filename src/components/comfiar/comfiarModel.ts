@@ -98,7 +98,7 @@ export class ComfiarModel {
       const _result = JSON.parse(xml2json(result, this.optionsXml))['soap:Envelope']['soap:Body'].SalidaTransaccionResponse.SalidaTransaccionResult._text;
       const data = JSON.parse(xml2json(_result, this.optionsXml));
       return new Promise((resolve, reject) => {
-        console.log(JSON.stringify(data));
+        // console.log(JSON.stringify(data));
         if (data.TransaccionError) {
           reject({
             statusCode: 200,
@@ -158,7 +158,11 @@ export class ComfiarModel {
             stack: _data.ResponseError.Error._text
           });
         } else {
-          if ( _data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
+          if ( _data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR' ) {
+            reject({
+              stack: _data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
+            });
+          } else if (_data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'RECHAZADO') {
             reject({
               stack: _data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
             });

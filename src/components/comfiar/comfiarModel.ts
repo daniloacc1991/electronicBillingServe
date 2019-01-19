@@ -162,17 +162,17 @@ export class ComfiarModel {
             reject({
               stack: _data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
             });
-          } else if (_data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'RECHAZADO') {
-            reject({
-              stack: _data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
-            });
           } else {
             this.parser.xmlToJson( _data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
               if (err) {
                 reject(err);
               }
+              const rtaDIAN = JSON.parse(xml2json(_data.comprobantes.Comprobante.RespuestaDIAN._text, this.optionsXml));
               resolve({
-                cufe: json['fe:Invoice']['cbc:UUID']
+                cufe: json['fe:Invoice']['cbc:UUID'],
+                estado: _data.comprobantes.Comprobante.informacionComfiar.Estado._text,
+                ReceivedDateTime: rtaDIAN.RespuestaDIAN.ReceivedDateTime._text,
+                ResponseDateTime: rtaDIAN.RespuestaDIAN.ResponseDateTime._text
               });
             });
           }

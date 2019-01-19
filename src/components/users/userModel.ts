@@ -20,7 +20,7 @@ export class UserModel extends ModelPg {
 
   public async pg_perfil (sistema: string, user: string) {
     try {
-      const { rows } = await this._pg.query(`SELECT mu.modulo_sistema, ug.grupo_usuario FROM	usuarios_x_grupo ug JOIN modulo_x_usuario mu ON ug.sistema = mu.modulo_sistema WHERE mu.modulo_sistema = $1 AND mu.usuario = $2`, [sistema, user]);
+      const { rows } = await this._pg.query(`SELECT mu.modulo_sistema, ug.grupo_usuario FROM	usuarios_x_grupo ug JOIN modulo_x_usuario mu ON ug.sistema = mu.modulo_sistema AND ug.usuario = mu.usuario WHERE mu.modulo_sistema = $1 AND mu.usuario = $2`, [sistema, user]);
       if ( rows.length !== 1 ) {
         throw {
           stack: 'Usted no tiene permisos para ingresar a este modulo..'

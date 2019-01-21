@@ -53,9 +53,9 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  public async invoicesSent (userI: string, userF: string) {
+  public async invoicesSent (userI: string, userF: string, fechaI: string, fechaF: string) {
     try {
-      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1, $2)`, [userI, userF]);
+      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1, $2, $3, $4)`, [userI, userF, fechaI, fechaF]);
       return rows;
     } catch (e) {
       throw e;
@@ -81,9 +81,15 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  public async saveCufe (cufe: string, invoice: string) {
+  public async saveCufe (cufe: string, invoice: string, estado: string, recibeDian: string, respondeDian: string) {
     try {
-      const { rows } = await this._pg.query(`UPDATE factura SET cufe = $1, fe_fecha_cufe = now() WHERE factura = $2 returning factura, cufe`, [cufe, invoice]);
+      const { rows } = await this._pg.query(`UPDATE	factura
+      SET	cufe = $1, fe_fecha_cufe = now(),
+        fe_estado = (SELECT fe_estado FROM fe_estado WHERE descripcion = $3),
+        fe_fecha_recibe_dian = $4::timestamp,
+        fe_fecha_respuesta_dian = $5::timestamp
+      WHERE	factura = $2
+      RETURNING factura, cufe`, [cufe, invoice, estado, recibeDian, respondeDian]);
       return rows;
     } catch (e) {
       throw e;

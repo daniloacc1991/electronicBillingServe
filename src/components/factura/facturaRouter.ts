@@ -14,7 +14,7 @@ export class FacturaRoutes {
     // Facturación
     router.get(`${this.path}/pending`, isAuthenticated, isPermit(['USER', 'ADMIN']), FacturaController.invoicePending);
     router.get(`${this.path}/cufePending`, isAuthenticated, isPermit(['USER', 'ADMIN']), FacturaController.cufePending);
-    router.get(`${this.path}/invoicesSent`, isAuthenticated, isPermit(['USER', 'ADMIN']), FacturaController.invoicesSent);
+    router.get(`${this.path}/invoicesSent/:fechaI/:fechaF`, isAuthenticated, isPermit(['USER', 'ADMIN']), FacturaController.invoicesSent);
     router.get(`${this.path}/:numInvoce`, isAuthenticated, isPermit(['USER', 'ADMIN']),  FacturaController.invoice);
     router.put(`${this.path}/savetransaccion`, isAuthenticated, isPermit(['USER', 'ADMIN']),  FacturaController.saveTransaccion);
     router.delete(`${this.path}/deletetransaccion/:invoice`, isAuthenticated, isPermit(['USER', 'ADMIN']),  FacturaController.deleteTransaccion);

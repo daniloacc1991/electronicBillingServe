@@ -13,16 +13,12 @@ passport.use('local-user', new localStrategy({ passwordField: 'pass', usernameFi
   const password = pass.replace(new RegExp(' ', 'g'), '+');
   _userModel.pg_login(user, password)
     .then(u => {
-      console.log(u);
       if (!u) {
         return done(null, false);
       }
-      console.log(configEnv.get('sistema'));
-      console.log(u.usuario);
       _userModel.pg_perfil(configEnv.get('sistema'), u.usuario)
         .then(perfil => {
           u.scope = perfil.grupo_usuario;
-          console.log(u);
           return done(null, u);
         })
         .catch((e) => {

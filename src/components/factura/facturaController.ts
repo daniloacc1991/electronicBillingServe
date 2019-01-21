@@ -65,7 +65,7 @@ export class FacturaController {
     let userI: string, userF: string;
     req.user.scope === 'USER' ? userI = req.user.user : userI = '  ';
     req.user.scope === 'USER' ? userF = req.user.user : userF = 'ZZ';
-    _modelFactura.invoicesSent(userI, userF)
+    _modelFactura.invoicesSent(userI, userF, req.params.fechaI, req.params.fechaF)
       .then(rows => {
         rows = rows.map( f => {
           f.path_pdf = `http://${config.get('host')}:${config.get('port')}${f.path_pdf}`;
@@ -108,7 +108,7 @@ export class FacturaController {
 
   public static saveCufe (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.saveCufe(req.body.cufe, req.body.invoice)
+    _modelFactura.saveCufe(req.body.cufe, req.body.invoice, req.body.estado, req.body.recibeDian, req.body.respondeDian)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));

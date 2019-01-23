@@ -31,7 +31,7 @@ export class UserController {
     _modelUsers.pg_SaveToken(token, user.id)
       .then(resp => {
         log.info(req.user);
-        res.json(Commons.sendResponse('Success', { username: user.username, token }));
+        res.json(Commons.sendResponse('Success', { username: user.username, token, scope: user.scope }));
       })
       .catch(err => {
         log.error(err);

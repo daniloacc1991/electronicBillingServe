@@ -9,12 +9,28 @@ export class FacturaModel extends ModelPg {
     this._pg = this.pg();
   }
 
-  public async invoicePending (user: string) {
+  public async invoicePending (userI: string, userF: string) {
     try {
-      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_pending($1)`, [user]);
-      return rows.map( t => {
-        return t;
-      });
+      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_pending($1, $2)`, [userI, userF]);
+      return rows;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async cufePending (userI: string, userF: string) {
+    try {
+      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_cufe_pending($1, $2)`, [userI, userF]);
+      return rows;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  public async invoicesSent (userI: string, userF: string, fechaI: string, fechaF: string) {
+    try {
+      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1, $2, $3, $4)`, [userI, userF, fechaI, fechaF]);
+      return rows;
     } catch (e) {
       throw e;
     }
@@ -37,26 +53,6 @@ export class FacturaModel extends ModelPg {
       return rows.map( t => {
         return t;
       });
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  public async cufePending (user: string) {
-    try {
-      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_cufe_pending($1)`, [user]);
-      return rows.map( t => {
-        return t;
-      });
-    } catch (e) {
-      throw e;
-    }
-  }
-
-  public async invoicesSent (userI: string, userF: string, fechaI: string, fechaF: string) {
-    try {
-      const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_sent($1, $2, $3, $4)`, [userI, userF, fechaI, fechaF]);
-      return rows;
     } catch (e) {
       throw e;
     }
@@ -155,10 +151,10 @@ export class FacturaModel extends ModelPg {
       if (typeInvoce.rows[0].fe_tipo_factura == 'R') {
         query = `SELECT	row_number() OVER () as id, concepto.nombre As Description, 1 As InvoicedQuantity, SUM(servicio_detalle.valor) PriceAmount,SUM(servicio_detalle.valor) LineExtensionAmount FROM servicio_encabezado JOIN servicio_detalle ON servicio_encabezado.numero_servicio = servicio_detalle.numero_servicio AND servicio_encabezado.concepto = servicio_detalle.concepto AND servicio_encabezado.registro = servicio_detalle.registro JOIN registro ON servicio_encabezado.registro = registro.registro JOIN concepto ON servicio_encabezado.concepto = concepto.concepto WHERE registro.factura = $1 GROUP BY 2,3 HAVING SUM (servicio_detalle.cantidad) > 0 ORDER BY 2,3`;
       } else if (typeInvoce.rows[0].fe_tipo_factura == 'D') {
-        query = `SELECT  row_number() over () as id, t1.*, t1.LineExtensionAmount/t1.InvoicedQuantity as PriceAmount, SUM(t1.LineExtensionAmount) over (partition by t1.concepto) as totalconcepto FROM  ( SELECT concepto.nombre as concepto, servicio_detalle.servicio, servicio_detalle.nombre_manual as Description, SUM(servicio_detalle.cantidad) as InvoicedQuantity, SUM(servicio_detalle.valor) as LineExtensionAmount FROM	servicio_encabezado, servicio_detalle, registro, concepto WHERE servicio_encabezado.numero_servicio = servicio_detalle.numero_servicio AND servicio_encabezado.concepto = servicio_detalle.concepto AND servicio_encabezado.registro = servicio_detalle.registro AND servicio_encabezado.registro = registro.registro AND servicio_encabezado.concepto = concepto.concepto AND registro.factura = $1 GROUP BY 1,2,3 HAVING SUM(servicio_detalle.cantidad) > 0 ORDER BY 1,2) as t1`;
+        query = `SELECT  row_number() over () as id, t1.*, t1.LineExtensionAmount/t1.InvoicedQuantity as PriceAmount, SUM(t1.LineExtensionAmount) over (partition by t1.concepto) as totalconcepto FROM  ( SELECT concepto.nombre as concepto, servicio_detalle.codigo_manual servicio, servicio_detalle.nombre_manual as Description, SUM(servicio_detalle.cantidad) as InvoicedQuantity, SUM(servicio_detalle.valor) as LineExtensionAmount FROM	servicio_encabezado, servicio_detalle, registro, concepto WHERE servicio_encabezado.numero_servicio = servicio_detalle.numero_servicio AND servicio_encabezado.concepto = servicio_detalle.concepto AND servicio_encabezado.registro = servicio_detalle.registro AND servicio_encabezado.registro = registro.registro AND servicio_encabezado.concepto = concepto.concepto AND registro.factura = $1 GROUP BY 1,2,3 HAVING SUM(servicio_detalle.cantidad) > 0 ORDER BY 1,2) as t1`;
       } else if (typeInvoce.rows[0].fe_tipo_factura == 'P') {
         query = `SELECT	row_number() over () id, t1.*, t1.LineExtensionAmount/t1.InvoicedQuantity as PriceAmount, SUM(t1.LineExtensionAmount) over (partition by t1.concepto) as totalconcepto FROM (
-        SELECT	concepto.nombre AS concepto, servicio_detalle_paquete.servicio, servicio.descripcion description, SUM(servicio_detalle_paquete.cantidad) InvoicedQuantity, SUM(servicio_detalle_paquete.valor) LineExtensionAmount FROM servicio_detalle_paquete JOIN registro ON registro.registro = servicio_detalle_paquete.registro JOIN concepto ON concepto.concepto = servicio_detalle_paquete.concepto JOIN servicio ON servicio.concepto = servicio_detalle_paquete.concepto AND servicio.servicio = servicio_detalle_paquete.servicio WHERE	registro.factura = $1 GROUP BY 1,2,3 ORDER BY 1,2 ) t1`;
+        SELECT	concepto.nombre AS concepto, servicio_detalle_paquete.codigo_manual servicio, servicio_detalle_paquete.nombre_manual description, SUM(servicio_detalle_paquete.cantidad) InvoicedQuantity, SUM(servicio_detalle_paquete.valor) LineExtensionAmount FROM servicio_detalle_paquete JOIN registro ON registro.registro = servicio_detalle_paquete.registro JOIN concepto ON concepto.concepto = servicio_detalle_paquete.concepto JOIN servicio ON servicio.concepto = servicio_detalle_paquete.concepto AND servicio.servicio = servicio_detalle_paquete.servicio WHERE	registro.factura = $1 GROUP BY 1,2,3 ORDER BY 1,2 ) t1`;
       }
       const details = await this._pg.query(query, [factura]);
       return {

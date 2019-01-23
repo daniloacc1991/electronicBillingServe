@@ -4,7 +4,7 @@ import * as xmlToJson from 'xml-to-json-stream';
 
 export class ComfiarModel {
 
-  private parser = xmlToJson( { attributeMode: false } );
+  private parser = xmlToJson({ attributeMode: false });
 
   private optionsXml: Object = {
     compact: true,
@@ -23,8 +23,8 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
-      return new Promise ( (resolve, reject) => {
-        this.parser.xmlToJson( result, (err, json) => {
+      return new Promise((resolve, reject) => {
+        this.parser.xmlToJson(result, (err, json) => {
           if (err) {
             reject({
               stack: err
@@ -38,7 +38,7 @@ export class ComfiarModel {
         });
       });
     } catch (e) {
-      this.parser.xmlToJson( e.error, (err, json) => {
+      this.parser.xmlToJson(e.error, (err, json) => {
         if (err) {
           throw {
             stack: err
@@ -158,22 +158,35 @@ export class ComfiarModel {
             stack: _data.ResponseError.Error._text
           });
         } else {
-          if ( _data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR' ) {
+          if (_data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
             reject({
               stack: _data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
             });
           } else {
-            this.parser.xmlToJson( _data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
+            this.parser.xmlToJson(_data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
               if (err) {
                 reject(err);
               }
-              const rtaDIAN = JSON.parse(xml2json(_data.comprobantes.Comprobante.RespuestaDIAN._text, this.optionsXml));
-              resolve({
-                cufe: json['fe:Invoice']['cbc:UUID'],
-                estado: _data.comprobantes.Comprobante.informacionComfiar.Estado._text,
-                ReceivedDateTime: rtaDIAN.RespuestaDIAN.ReceivedDateTime._text,
-                ResponseDateTime: rtaDIAN.RespuestaDIAN.ResponseDateTime._text
-              });
+              if (_data.comprobantes.Comprobante.RespuestaDIAN) {
+                let xmlDian: string = _data.comprobantes.Comprobante.RespuestaDIAN._text;
+                xmlDian = xmlDian.replace(new RegExp('&lt;', 'g'), '<');
+                xmlDian = xmlDian.replace(new RegExp('&gt;', 'g'), '>');
+                const rtaDIAN = JSON.parse(xml2json(xmlDian, this.optionsXml));
+                resolve({
+                  cufe: json['fe:Invoice']['cbc:UUID'],
+                  estado: _data.comprobantes.Comprobante.informacionComfiar.Estado._text,
+                  ReceivedDateTime: rtaDIAN.RespuestaDIAN.ReceivedDateTime._text,
+                  ResponseDateTime: rtaDIAN.RespuestaDIAN.ResponseDateTime._text
+                });
+              } else {
+                resolve({
+                  cufe: json['fe:Invoice']['cbc:UUID'],
+                  estado: _data.comprobantes.Comprobante.informacionComfiar.Estado._text,
+                  ReceivedDateTime: '1900/01/01',
+                  ResponseDateTime: '1900/01/01'
+                });
+              }
+
             });
           }
         }
@@ -211,7 +224,7 @@ export class ComfiarModel {
     try {
       const result = await this.apiDelcop(_xml, 'POST');
       const _result = JSON.parse(xml2json(result, this.optionsXml))['soap:Envelope']['soap:Body'].DescargarPdfResponse;
-      return new Promise ( (resolve, reject) => {
+      return new Promise((resolve, reject) => {
 
         if (_result.DescargarPdfResult) {
           resolve(_result.DescargarPdfResult._text);

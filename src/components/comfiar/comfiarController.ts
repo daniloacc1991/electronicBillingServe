@@ -6,7 +6,7 @@ import { ComfiarModel } from './';
 
 export class ComfiarController {
 
-  public static login (req: Request, res: Response) {
+  public static login(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
     _comfiar.login(req.body.user, req.body.password)
       .then(rows => {
@@ -19,8 +19,9 @@ export class ComfiarController {
       });
   }
 
-  public static enviarFactura (req: Request, res: Response) {
+  public static enviarFactura(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
+    req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
     _comfiar.enviarFactura(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta)
       .then(rows => {
         log.info('%s %s %s', rows);
@@ -32,8 +33,9 @@ export class ComfiarController {
       });
   }
 
-  public static salidaTransaccion (req: Request, res: Response) {
+  public static salidaTransaccion(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
+    req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
     _comfiar.salidaTransaccion(req.body.token, req.body.date, req.body.transaccion)
       .then(rows => {
         log.info('%s %s %s', rows);
@@ -45,8 +47,9 @@ export class ComfiarController {
       });
   }
 
-  public static respuestaComprobante (req: Request, res: Response) {
+  public static respuestaComprobante(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
+    req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
     _comfiar.respuestaComprobante(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta)
       .then(rows => {
         log.info('%s %s %s', rows);
@@ -58,17 +61,17 @@ export class ComfiarController {
       });
   }
 
-  public static consultarPDF (req: Request, res: Response) {
+  public static consultarPDF(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
+    req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
     _comfiar.consultarPDF(req.body.token, req.body.date, req.body.invoice, req.body.transaccion, req.body.puntoVenta)
       .then(rows => {
-        // log.info('%s %s %s', rows);
         DecodePDF.converToPdf(rows, req.body.invoice)
-          .then( r => {
+          .then(r => {
             log.info('%s %s %s', r);
             res.json(Commons.sendResponse('Success', { rows }));
           })
-          .catch( err => {
+          .catch(err => {
             log.error('%s %s %s', err);
             res.status(400).json(Commons.sendResponse('Error!! al consular el pdf en comfiar..', null, err.stack));
           });

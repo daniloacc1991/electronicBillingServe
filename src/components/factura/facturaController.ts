@@ -4,6 +4,7 @@ import { Commons, log } from '../../services';
 import { FacturaModel } from './';
 import { Invoice } from '../../services/buildInvoice';
 import { XmlAdmin } from '../../interfaces/xml';
+import { RtaComprobanteModel } from '../../interfaces/rtaComprobante';
 
 export class FacturaController {
 
@@ -50,7 +51,7 @@ export class FacturaController {
           f.path_pdf = `http://${config.get('host')}:${config.get('port')}${f.path_pdf}`;
           return f;
         });
-        log.info('%s %s %s', rows);
+        // log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
       })
       .catch(err => {
@@ -114,7 +115,8 @@ export class FacturaController {
 
   public static saveCufe (req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.saveCufe(req.body.cufe, req.body.invoice, req.body.estado, req.body.recibeDian, req.body.respondeDian)
+    const rtaDIAN: RtaComprobanteModel = JSON.parse(req.body.rtaComprobante);
+    _modelFactura.saveCufe(rtaDIAN)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -129,8 +131,13 @@ export class FacturaController {
     const _invoice = new Invoice();
     _invoice.generarFactura(req.params.numInvoce)
       .then(rows => {
-        log.info('%s %s %s', rows);
-        res.json(Commons.sendResponse('Success', { rows }));
+        if (rows.stack) {
+          log.error('%s %s %s', rows);
+          res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, rows.stack));
+        } else {
+          log.info('%s %s %s', rows);
+          res.json(Commons.sendResponse('Success', { rows }));
+        }
       })
       .catch(err => {
         log.error('%s %s %s', err);

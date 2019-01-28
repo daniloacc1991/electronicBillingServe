@@ -1,21 +1,12 @@
 import * as rpn from 'request-promise-native';
-import { xml2json } from 'xml-js';
+// import { xml2json } from 'xml-js';
 import * as xmlToJson from 'xml-to-json-stream';
+
+import { IRequestPromise } from '../../interfaces/rpn';
 
 export class ComfiarModel {
 
-  private parser = xmlToJson({ attributeMode: false });
-
-  private optionsXml: Object = {
-    compact: true,
-    ignoreAttributes: true,
-    ignoreComment: true,
-    ignoreCdata: true,
-    ignoreDeclaration: true,
-    spaces: 0
-  };
-
-  public async login (user: string, password: string) {
+  public async login(user: string, password: string) {
     const _xml = `<IniciarSesion xmlns="http://comfiar.com.ar/webservice/">
     <usuarioId>${user}</usuarioId>
     <password>${password}</password>
@@ -23,36 +14,43 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
-      return new Promise((resolve, reject) => {
-        this.parser.xmlToJson(result, (err, json) => {
-          if (err) {
-            reject({
-              stack: err
-            });
-          } else {
-            resolve({
-              token: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.SesionId,
-              date: json['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.FechaVencimiento
-            });
+      const _result = await this.xmlStream(result.response, false);
+      if (_result['soap:Envelope']['soap:Body']['IniciarSesionResponse']) {
+        return {
+          token: _result['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.SesionId,
+          date: _result['soap:Envelope']['soap:Body'].IniciarSesionResponse.IniciarSesionResult.FechaVencimiento
+        };
+      } else {
+        const _error = await this.xmlStream(_result, false);
+        return Promise.reject({
+          stack: {
+            delete: false,
+            msj: _error
           }
         });
-      });
+      }
     } catch (e) {
-      this.parser.xmlToJson(e.error, (err, json) => {
-        if (err) {
-          throw {
-            stack: err
-          };
-        } else {
-          throw {
-            stack: json['soap:Envelope']['soap:Body']['soap:Fault'].faultstring
-          };
-        }
-      });
+      try {
+        const error = await this.xmlStream(e.error, false);
+        return Promise.reject({
+          statusCode: e.statusCode,
+          stack: {
+            delete: false,
+            msj: error['soap:Envelope']['soap:Body']['soap:Fault']['faultstring']
+          }
+        });
+      } catch (e) {
+        return Promise.reject({
+          stack: {
+            delete: false,
+            msj: e.stack
+          }
+        });
+      }
     }
   }
 
-  public async enviarFactura (token: string, date: any, invoice: string, puntoVenta: number) {
+  public async enviarFactura(token: string, date: any, invoice: string, puntoVenta: number) {
     const _xml = `<AutorizarComprobantesAsincronico xmlns="http://comfiar.com.ar/webservice/">
       <XML><![CDATA[${invoice}]]></XML>
       <cuitAProcesar>890208758</cuitAProcesar>
@@ -67,23 +65,54 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
-      const _result = JSON.parse(xml2json(result, this.optionsXml));
-      const data = JSON.parse(xml2json(_result['soap:Envelope']['soap:Body'].AutorizarComprobantesAsincronicoResponse.AutorizarComprobantesAsincronicoResult._text, this.optionsXml));
-      return {
-        fecha: data.SalidaTransaccion.Transaccion.Fecha._text,
-        transaccion: data.SalidaTransaccion.Transaccion.ID._text,
-      };
+      const _result = await this.xmlStream(result.response, false);
+      const rtaAPI = _result['soap:Envelope']['soap:Body'];
+      if (rtaAPI.AutorizarComprobantesAsincronicoResponse.AutorizarComprobantesAsincronicoResult) {
+        const data = await this.xmlStream(rtaAPI.AutorizarComprobantesAsincronicoResponse.AutorizarComprobantesAsincronicoResult, true, { one: '&lt;', two: '&gt;' });
+        if (data.SalidaTransaccion.Transaccion.Error) {
+          return Promise.reject({
+            stack: {
+              delete: true,
+              msj: data.SalidaTransaccion.Transaccion.Error
+            }
+          });
+        } else {
+          return {
+            fecha: data.SalidaTransaccion.Transaccion.Fecha,
+            transaccion: data.SalidaTransaccion.Transaccion.ID,
+          };
+        }
+      } else {
+        return Promise.reject({
+          stack: {
+            delete: true,
+            msj: rtaAPI
+          }
+        });
+      }
+
     } catch (e) {
-      const err = JSON.parse(xml2json(e.error, this.optionsXml));
-      throw {
-        name: e.name,
-        statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
-      };
+      try {
+        const error = await this.xmlStream(e.error, false);
+        return Promise.reject({
+          statusCode: e.statusCode,
+          stack: {
+            delete: false,
+            msj: error['soap:Envelope']['soap:Body']['soap:Fault']['faultstring']
+          }
+        });
+      } catch (e) {
+        return Promise.reject({
+          stack: {
+            delete: false,
+            msj: e.stack
+          }
+        });
+      }
     }
   }
 
-  public async salidaTransaccion (token: string, date: any, transaccion: number) {
+  public async salidaTransaccion(token: string, date: any, transaccion: number) {
     const _xml = `<SalidaTransaccion xmlns="http://comfiar.com.ar/webservice/">
       <cuitId>890208758</cuitId>
       <transaccionId>${transaccion}</transaccionId>
@@ -95,42 +124,57 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
-      const _result = JSON.parse(xml2json(result, this.optionsXml))['soap:Envelope']['soap:Body'].SalidaTransaccionResponse.SalidaTransaccionResult._text;
-      const data = JSON.parse(xml2json(_result, this.optionsXml));
-      return new Promise((resolve, reject) => {
-        // console.log(JSON.stringify(data));
-        if (data.TransaccionError) {
-          reject({
-            statusCode: 200,
-            stack: data.TransaccionError.Error._text
+      const _result = await this.xmlStream(result.response, false);
+
+      if (_result['soap:Envelope']['soap:Body'].SalidaTransaccionResponse.SalidaTransaccionResult) {
+        const _transaccion = await this.xmlStream(_result['soap:Envelope']['soap:Body'].SalidaTransaccionResponse.SalidaTransaccionResult, true, { one: '&lt;', two: '&gt;' });
+
+        if (_transaccion.TransaccionError) {
+          return Promise.reject({
+            stack: {
+              delete: true,
+              msj: _transaccion.TransaccionError.Error
+            }
           });
-        } else if (data.TransaccionSinTerminar) {
-          resolve(data.TransaccionSinTerminar.Estado._text);
-        } else if (data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
-          reject({
-            statusCode: 200,
-            stack: data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
-          });
-        } else if (data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ACEPTADO') {
-          resolve(data.comprobantes.Transaccion);
+        } else if (_transaccion.TransaccionSinTerminar) {
+          return Promise.resolve(_transaccion.TransaccionSinTerminar);
         } else {
-          reject(data);
+          return Promise.resolve(_transaccion.comprobantes.Transaccion);
         }
-      });
-      // return (data);
+
+      } else {
+        return Promise.reject({
+          stack: {
+            delete: false,
+            msj: _result
+          }
+        });
+      }
     } catch (e) {
-      const err = JSON.parse(xml2json(e.error, this.optionsXml));
-      throw {
-        name: e.name,
-        statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
-      };
+      try {
+        const error = await this.xmlStream(e.error, false);
+        return Promise.reject({
+          statusCode: e.statusCode,
+          stack: {
+            delete: false,
+            msj: error['soap:Envelope']['soap:Body']['soap:Fault']['faultstring']
+          }
+        });
+      } catch (e) {
+        return Promise.reject({
+          stack: {
+            delete: false,
+            msj: e.stack
+          }
+        });
+      }
     }
   }
 
-  public async respuestaComprobante (token: string, date: any, invoice: string, puntoVenta: number) {
+  public async respuestaComprobante(token: string, date: any, invoice: string, puntoVenta: number) {
 
     const n = invoice.indexOf('-');
+    const factura = invoice;
     if (n < 0) {
     } else {
       invoice = invoice.split('-')[1];
@@ -148,60 +192,103 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
+      const _result = await this.xmlStream(result.response, false);
 
-      return new Promise((resolve, reject) => {
-        const _result = JSON.parse(xml2json(result, this.optionsXml))['soap:Envelope']['soap:Body'].RespuestaComprobanteResponse.RespuestaComprobanteResult._text;
-        const _data = JSON.parse(xml2json(_result, this.optionsXml));
-        if (_data.ResponseError) {
-          reject({
-            statusCodeComfiar: 200,
-            stack: _data.ResponseError.Error._text
+      if (_result['soap:Envelope']['soap:Body'].RespuestaComprobanteResponse.RespuestaComprobanteResult) {
+
+        const _comprobante = await this.xmlStream(_result['soap:Envelope']['soap:Body'].RespuestaComprobanteResponse.RespuestaComprobanteResult, true, { one: '&lt;', two: '&gt;' });
+
+        if (_comprobante.ResponseError) {
+          return Promise.reject({
+            stack: {
+              delete: true,
+              msj: _comprobante.ResponseError.Error
+            }
           });
-        } else {
-          if (_data.comprobantes.Comprobante.informacionComfiar.Estado._text === 'ERROR') {
-            reject({
-              stack: _data.comprobantes.Comprobante.informacionComfiar.mensajes.mensaje.mensaje._text
-            });
-          } else {
-            this.parser.xmlToJson(_data.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado._text, (err, json) => {
-              if (err) {
-                reject(err);
-              }
-              if (_data.comprobantes.Comprobante.RespuestaDIAN) {
-                let xmlDian: string = _data.comprobantes.Comprobante.RespuestaDIAN._text;
-                xmlDian = xmlDian.replace(new RegExp('&lt;', 'g'), '<');
-                xmlDian = xmlDian.replace(new RegExp('&gt;', 'g'), '>');
-                const rtaDIAN = JSON.parse(xml2json(xmlDian, this.optionsXml));
-                resolve({
-                  cufe: json['fe:Invoice']['cbc:UUID'],
-                  estado: _data.comprobantes.Comprobante.informacionComfiar.Estado._text,
-                  ReceivedDateTime: rtaDIAN.RespuestaDIAN.ReceivedDateTime._text,
-                  ResponseDateTime: rtaDIAN.RespuestaDIAN.ResponseDateTime._text
-                });
-              } else {
-                resolve({
-                  cufe: json['fe:Invoice']['cbc:UUID'],
-                  estado: _data.comprobantes.Comprobante.informacionComfiar.Estado._text,
-                  ReceivedDateTime: '1900/01/01',
-                  ResponseDateTime: '1900/01/01'
-                });
-              }
+        }
+        const infoComfiar = _comprobante.comprobantes.Comprobante.informacionComfiar;
 
-            });
+        if (infoComfiar.Estado === 'ERROR') {
+          return Promise.reject({
+            stack: {
+              delete: true,
+              estado: infoComfiar.Estado,
+              id: infoComfiar.mensajes.mensaje.identificador,
+              msj: infoComfiar.mensajes.mensaje.mensaje,
+            }
+          });
+        } else if (infoComfiar.Estado === 'RECHAZADO' || infoComfiar.Estado === 'AUTORIZADO') {
+          const _factura = await this.xmlStream(_comprobante.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado, true, { one: '&amp;lt;', two: '&amp;gt;' });
+          const rtaDian = await this.xmlStream(_comprobante.comprobantes.Comprobante.RespuestaDIAN, true, { one: '&amp;lt;', two: '&amp;gt;' });
+          return {
+            invoice: factura,
+            cufe: _factura['fe:Invoice']['cbc:UUID'],
+            estado: infoComfiar.Estado,
+            id: rtaDian.RespuestaDIAN.Cod ? rtaDian.RespuestaDIAN.Cod : infoComfiar.mensajes.mensaje.identificador,
+            msj: rtaDian.RespuestaDIAN.Comments ? rtaDian.RespuestaDIAN.Comments : infoComfiar.mensajes.mensaje.mensaje,
+            ReceivedDateTime: rtaDian.RespuestaDIAN.ReceivedDateTime,
+            ResponseDateTime: rtaDian.RespuestaDIAN.ResponseDateTime,
+            estadoDIAN: rtaDian.RespuestaDIAN.DescripcionEstado ? rtaDian.RespuestaDIAN.DescripcionEstado : '',
+          };
+        } else if (infoComfiar.Estado === 'ACEPTADO') {
+          const _factura = await this.xmlStream(_comprobante.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado, true, { one: '&amp;lt;', two: '&amp;gt;' });
+          if (!_comprobante.comprobantes.Comprobante.RespuestaDIAN) {
+            return {
+              invoice: factura,
+              cufe: _factura['fe:Invoice']['cbc:UUID'],
+              estado: infoComfiar.Estado
+            };
+          } else {
+            const rtaDian = await this.xmlStream(_comprobante.comprobantes.Comprobante.RespuestaDIAN, true, { one: '&amp;lt;', two: '&amp;gt;' });
+            return {
+              invoice: factura,
+              cufe: _factura['fe:Invoice']['cbc:UUID'],
+              estado: infoComfiar.Estado,
+              id: rtaDian.RespuestaDIAN.Cod ? rtaDian.RespuestaDIAN.Cod : infoComfiar.mensajes.mensaje.identificador,
+              msj: rtaDian.RespuestaDIAN.Comments ? rtaDian.RespuestaDIAN.Comments : infoComfiar.mensajes.mensaje.mensaje,
+              ReceivedDateTime: rtaDian.RespuestaDIAN.ReceivedDateTime,
+              ResponseDateTime: rtaDian.RespuestaDIAN.ResponseDateTime,
+              estadoDIAN: rtaDian.RespuestaDIAN.DescripcionEstado ? rtaDian.RespuestaDIAN.DescripcionEstado : '',
+            };
           }
+        } else {
+          const _factura = await this.xmlStream(_comprobante.comprobantes.Comprobante.informacionOrganismo.ComprobanteProcesado, true, { one: '&amp;lt;', two: '&amp;gt;' });
+          return {
+            invoice: factura,
+            cufe: _factura['fe:Invoice']['cbc:UUID'],
+            estado: infoComfiar.Estado,
+            msj: 'Informar a sistema el estado actual'
+          };
+        }
+      }
+      return Promise.reject({
+        stack: {
+          delete: false,
+          msj: _result
         }
       });
     } catch (e) {
-      const err = JSON.parse(xml2json(e.error, this.optionsXml));
-      throw {
-        name: e.name,
-        statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
-      };
+      try {
+        const error = await this.xmlStream(e.error, false);
+        return Promise.reject({
+          statusCode: e.statusCode,
+          stack: {
+            delete: false,
+            msj: error['soap:Envelope']['soap:Body']['soap:Fault']['faultstring']
+          }
+        });
+      } catch (e) {
+        throw Promise.reject({
+          stack: {
+            delete: false,
+            msj: e.stack
+          }
+        });
+      }
     }
   }
 
-  public async consultarPDF (token: string, date: any, invoice: string, transaccion: number, puntoVenta: number) {
+  public async consultarPDF(token: string, date: any, invoice: string, transaccion: number, puntoVenta: number) {
     let prefix;
     const n = invoice.indexOf('-');
     if (n < 0) {
@@ -223,31 +310,40 @@ export class ComfiarModel {
 
     try {
       const result = await this.apiDelcop(_xml, 'POST');
-      const _result = JSON.parse(xml2json(result, this.optionsXml))['soap:Envelope']['soap:Body'].DescargarPdfResponse;
-      return new Promise((resolve, reject) => {
+      const _result = await this.xmlStream(result.response, false);
+      const rtsAPI = _result['soap:Envelope']['soap:Body'];
 
-        if (_result.DescargarPdfResult) {
-          resolve(_result.DescargarPdfResult._text);
+      return new Promise((resolve, reject) => {
+        if (rtsAPI.DescargarPdfResponse.DescargarPdfResult) {
+          resolve(rtsAPI.DescargarPdfResponse.DescargarPdfResult);
         } else {
           reject({
-            statusCodeComfiar: 200,
             stack: 'No se encontró representación grafica',
             factura: `${prefix}-${invoice}`,
             transaccion: transaccion
           });
         }
       });
+
     } catch (e) {
-      const err = JSON.parse(xml2json(e.error, this.optionsXml));
-      throw {
-        name: e.name,
-        statusCode: e.statusCode,
-        stack: err['soap:Envelope']['soap:Body']['soap:Fault'].faultstring._text
-      };
+      try {
+        const error = await this.xmlStream(e.error, false);
+        throw ({
+          statusCode: e.statusCode,
+          stack: error['soap:Envelope']['soap:Body']['soap:Fault']['faultstring']
+        });
+      } catch (e) {
+        throw {
+          stack: {
+            delete: false,
+            msj: e.stack
+          }
+        };
+      }
     }
   }
 
-  private apiDelcop (body: string, method: string): Promise<string> {
+  private apiDelcop(body: string, method: string): Promise<IRequestPromise> {
     const _xml = `<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
       <soap:Body>
@@ -256,6 +352,7 @@ export class ComfiarModel {
     </soap:Envelope>`;
     const options = {
       method: method,
+      // uri: 'http://test.comfiar.co/ws/WSComfiar.asmx',
       uri: 'https://app2.comfiar.co/ws/WSComfiar.asmx',
       headers: {
         'User-Agent': 'Request-Promise',
@@ -269,7 +366,11 @@ export class ComfiarModel {
     return new Promise((resolve, reject) => {
       rpn(options)
         .then((response) => {
-          resolve(response);
+          const res = {
+            statusCode: response.statusCode,
+            response: response
+          };
+          resolve(res);
         })
         .catch(err => {
           reject(err);
@@ -277,4 +378,42 @@ export class ComfiarModel {
     });
   }
 
+  private async xmlStream(xml: any, replace: boolean, findtext?: { one: string, two: string }): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const parser = xmlToJson({ attributeMode: false });
+      let xmlDian = xml;
+      xmlDian = replace ? xmlDian.replace(new RegExp(findtext.one, 'g'), '<') : xmlDian;
+      xmlDian = replace ? xmlDian.replace(new RegExp(findtext.two, 'g'), '>') : xmlDian;
+      parser.xmlToJson(xmlDian, (err, res) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(res);
+        }
+      });
+    });
+  }
+
+  // private async xmlJs(xml) {
+  //   return new Promise((resolve, reject) => {
+  //     const optionsXml = {
+  //       compact: true,
+  //       ignoreAttributes: true,
+  //       ignoreComment: true,
+  //       ignoreCdata: true,
+  //       ignoreDeclaration: true,
+  //       spaces: 0
+  //     };
+  //     const xmlDian = xml;
+  //     // xmlDian = xmlDian.replace(new RegExp('&lt;', 'g'), '<');
+  //     // xmlDian = xmlDian.replace(new RegExp('&gt;', 'g'), '>');
+  //     try {
+  //       const result = xml2json(xmlDian, optionsXml);
+  //       const json = JSON.parse(result);
+  //       resolve(json);
+  //     } catch (e) {
+  //       reject(e);
+  //     }
+  //   });
+  // }
 }

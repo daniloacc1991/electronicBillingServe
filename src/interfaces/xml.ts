@@ -1,9 +1,9 @@
-import { NoteHeader, NoteBody, InvoiceBody } from './';
+import { NoteHeader, NoteBody, InvoiceBody, InvoiceHeader } from './';
 
 export class XmlAdmin {
 
   // tslint:disable:quotemark
-  async headerInvoice(encabezado) {
+  async headerInvoice(encabezado: InvoiceHeader) {
     return Promise.resolve({
       "@": {
         "xmlns:fe": "http://www.dian.gov.co/contratos/facturaelectronica/v1",

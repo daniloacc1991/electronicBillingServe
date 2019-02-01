@@ -141,7 +141,7 @@ export class FacturaModel extends ModelPg {
     }
   }
 
-  public async invoce(factura: string) {
+  public async pg_invoice(factura: string) {
     try {
       const body = await this.pg_invoice_body(factura);
       const header = await this.pg_invoice_header(factura);

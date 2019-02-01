@@ -87,7 +87,7 @@ export class FacturaController {
 
   public static invoice(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
-    _modelFactura.invoce(req.params.invoice)
+    _modelFactura.pg_invoice(req.params.invoice)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));

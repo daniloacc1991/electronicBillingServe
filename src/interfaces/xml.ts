@@ -1,10 +1,10 @@
+import { NoteHeader, NoteBody, InvoiceBody } from './';
+
 export class XmlAdmin {
 
-  constructor () {
-  }
   // tslint:disable:quotemark
-  headerXML (encabezado): any {
-    const invoce = {
+  async headerInvoice(encabezado) {
+    return Promise.resolve({
       "@": {
         "xmlns:fe": "http://www.dian.gov.co/contratos/facturaelectronica/v1",
         "xmlns": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
@@ -28,15 +28,15 @@ export class XmlAdmin {
           "ext:ExtensionContent": {
             "sts:DianExtensions": {
               "sts:InvoiceControl": {
-                "sts:InvoiceAuthorization": encabezado[0].invoiceauthorization,
+                "sts:InvoiceAuthorization": encabezado.invoiceauthorization,
                 "sts:AuthorizationPeriod": {
-                  "cbc:StartDate": encabezado[0].startdate,
-                  "cbc:EndDate": encabezado[0].enddate
+                  "cbc:StartDate": encabezado.startdate,
+                  "cbc:EndDate": encabezado.enddate
                 },
                 "sts:AuthorizedInvoices": {
-                  "sts:Prefix": encabezado[0].prefix,
-                  "sts:From": encabezado[0].rfrom,
-                  "sts:To": encabezado[0].rto
+                  "sts:Prefix": encabezado.prefix,
+                  "sts:From": encabezado.rfrom,
+                  "sts:To": encabezado.rto
                 }
               },
               "sts:InvoiceSource": {
@@ -78,7 +78,7 @@ export class XmlAdmin {
       },
       "cbc:UBLVersionID": "UBL 2.0",
       "cbc:ProfileID": "DIAN 1.0",
-      "cbc:ID": encabezado[0].prefix + encabezado[0].invoice,
+      "cbc:ID": encabezado.prefix + encabezado.invoice,
       "cbc:UUID": {
         "@": {
           "schemeAgencyID": "195",
@@ -86,8 +86,8 @@ export class XmlAdmin {
         },
         "#": ""
       },
-      "cbc:IssueDate": encabezado[0].issuedate,
-      "cbc:IssueTime": encabezado[0].issuetime,
+      "cbc:IssueDate": encabezado.issuedate,
+      "cbc:IssueTime": encabezado.issuetime,
       "cbc:InvoiceTypeCode": {
         "@": {
           "listAgencyID": "6",
@@ -98,65 +98,65 @@ export class XmlAdmin {
       },
       "cbc:Note": [
         {
-          "#": encabezado[0].datein
+          "#": encabezado.datein
         },
         {
-          "#": encabezado[0].dateout
+          "#": encabezado.dateout
         },
         {
-          "#": encabezado[0].observation
+          "#": encabezado.observation
         },
         {
-          "#": encabezado[0].producedby
+          "#": encabezado.producedby
         },
         {
-          "#": encabezado[0].printdate
+          "#": encabezado.printdate
         },
         {
-          "#": encabezado[0].register
+          "#": encabezado.register
         },
         {
-          "#": encabezado[0].totaldiscount
+          "#": encabezado.totaldiscount
         },
         {
-          "#": encabezado[0].codediscount
+          "#": encabezado.codediscount
         }
       ],
       "cbc:DocumentCurrencyCode": "COP",
       "cac:BillingReference": {
         "cac:InvoiceDocumentReference": {
-          "cbc:ID": encabezado[0].typeinvoce
+          "cbc:ID": encabezado.typeinvoce
         }
       },
       "cac:ContractDocumentReference": {
-        "cbc:ID": encabezado[0].contract
+        "cbc:ID": encabezado.contract
       },
       "cac:AdditionalDocumentReference": {
-        "cbc:ID": encabezado[0].register,
-        "cbc:DocumentType": encabezado[0].identificationpatient
+        "cbc:ID": encabezado.register,
+        "cbc:DocumentType": encabezado.identificationpatient
       },
       "fe:AccountingSupplierParty": {
-        "cbc:AdditionalAccountID": encabezado[0].companyaccountid,
+        "cbc:AdditionalAccountID": encabezado.companyaccountid,
         "fe:Party": {
           "cac:PartyIdentification": {
             "cbc:ID": {
               "@": {
                 "schemeAgencyID": "195",
                 "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)",
-                "schemeID": encabezado[0].companytypedocument
+                "schemeID": encabezado.companytypedocument
               },
-              "#": encabezado[0].companydocument
+              "#": encabezado.companydocument
             }
           },
           "cac:PartyName": {
-            "cbc:Name": encabezado[0].companyname
+            "cbc:Name": encabezado.companyname
           },
           "fe:PhysicalLocation": {
             "fe:Address": {
-              "cbc:Department": encabezado[0].companydepartment,
-              "cbc:CityName": encabezado[0].companycity,
+              "cbc:Department": encabezado.companydepartment,
+              "cbc:CityName": encabezado.companycity,
               "cac:AddressLine": {
-                "cbc:Line": encabezado[0].companyaddress
+                "cbc:Line": encabezado.companyaddress
               },
               "cac:Country": {
                 "cbc:IdentificationCode": "CO"
@@ -164,36 +164,36 @@ export class XmlAdmin {
             }
           },
           "fe:PartyTaxScheme": {
-            "cbc:TaxLevelCode": encabezado[0].companyregimen,
+            "cbc:TaxLevelCode": encabezado.companyregimen,
             "cac:TaxScheme": ""
           },
           "fe:PartyLegalEntity": {
-            "cbc:RegistrationName": encabezado[0].companyname
+            "cbc:RegistrationName": encabezado.companyname
           },
           "cac:Contact": {
-            "cbc:Telephone": encabezado[0].companytelephone
+            "cbc:Telephone": encabezado.companytelephone
           }
         }
       },
       "fe:AccountingCustomerParty": {
-        "cbc:AdditionalAccountID": encabezado[0].clientaccountid,
+        "cbc:AdditionalAccountID": encabezado.clientaccountid,
         "fe:Party": {
           "cac:PartyIdentification": {
             "cbc:ID": {
               "@": {
                 "schemeAgencyID": "195",
                 "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)",
-                "schemeID": encabezado[0].clienttypedocument
+                "schemeID": encabezado.clienttypedocument
               },
-              "#": encabezado[0].clientdocument
+              "#": encabezado.clientdocument
             }
           },
           "fe:PhysicalLocation": {
             "fe:Address": {
-              "cbc:Department": encabezado[0].clientdepartment,
-              "cbc:CityName": encabezado[0].clientcity,
+              "cbc:Department": encabezado.clientdepartment,
+              "cbc:CityName": encabezado.clientcity,
               "cac:AddressLine": {
-                "cbc:Line": encabezado[0].clientaddress.toLocaleUpperCase()
+                "cbc:Line": encabezado.clientaddress.toLocaleUpperCase()
               },
               "cac:Country": {
                 "cbc:IdentificationCode": "CO"
@@ -201,27 +201,27 @@ export class XmlAdmin {
             }
           },
           "fe:PartyTaxScheme": {
-            "cbc:TaxLevelCode": encabezado[0].clientregimen,
+            "cbc:TaxLevelCode": encabezado.clientregimen,
             "cac:TaxScheme": ""
           },
           "fe:PartyLegalEntity": {
-            "cbc:RegistrationName": encabezado[0].clientname
+            "cbc:RegistrationName": encabezado.clientname
           },
           "cac:Contact": {
-            "cbc:Telephone": encabezado[0].clienttelephone,
-            "cbc:ElectronicMail": encabezado[0].clientemail,
-            "cbc:Note" : encabezado[0].plan
+            "cbc:Telephone": encabezado.clienttelephone,
+            "cbc:ElectronicMail": encabezado.clientemail,
+            "cbc:Note": encabezado.plan
           },
           "fe:Person": {
-            "cbc:FirstName": encabezado[0].clientaccountid === 2 ? encabezado[0].firstname : "CLIENTE",
-            "cbc:FamilyName": encabezado[0].clientaccountid === 2 ? encabezado[0].familyname : "",
-            "cbc:MiddleName": encabezado[0].clientaccountid === 2 ? encabezado[0].middlename : ""
+            "cbc:FirstName": encabezado.clientaccountid === 2 ? encabezado.firstname : "CLIENTE",
+            "cbc:FamilyName": encabezado.clientaccountid === 2 ? encabezado.familyname : "",
+            "cbc:MiddleName": encabezado.clientaccountid === 2 ? encabezado.middlename : ""
           }
         }
       },
       "cac:PaymentMeans": {
         "cbc:PaymentMeansCode": "41",
-        "cbc:PaymentDueDate": encabezado[0].paymentduedate
+        "cbc:PaymentDueDate": encabezado.paymentduedate
       },
       "fe:TaxTotal": {
         "cbc:TaxAmount": {
@@ -257,7 +257,7 @@ export class XmlAdmin {
           "@": {
             "currencyID": "COP"
           },
-          "#": encabezado[0].subtotal
+          "#": encabezado.subtotal
         },
         "cbc:TaxExclusiveAmount": {
           "@": {
@@ -269,24 +269,24 @@ export class XmlAdmin {
           "@": {
             "currencyID": "COP"
           },
-          "#": encabezado[0].totaldiscount
+          "#": encabezado.totaldiscount
         },
         "cbc:PayableAmount": {
           "@": {
             "currencyID": "COP"
           },
-          "#": encabezado[0].total
+          "#": encabezado.total
         }
       },
-      "fe:InvoiceLine": encabezado[0].details
-    };
-    return invoce;
+      "fe:InvoiceLine": []
+    });
   }
 
-  detailsXML (detalle, typeInvoce) {
-    let details;
-    if (typeInvoce === "R") {
-      details = {
+  bodyInvoice(detalle: InvoiceBody, typeInvoce: string, cb) {
+    console.log(typeInvoce);
+    console.log(detalle);
+    if (typeInvoce == "R") {
+      cb({
         "cbc:ID": detalle.id,
         "cbc:InvoicedQuantity": detalle.invoicedquantity,
         "cbc:LineExtensionAmount": {
@@ -306,9 +306,9 @@ export class XmlAdmin {
             "#": detalle.priceamount
           }
         }
-      };
-    } else if (typeInvoce === "D") {
-      details = {
+      });
+    } else if (typeInvoce == "D" || typeInvoce == "H") {
+      cb({
         "cbc:ID": detalle.id,
         "cbc:Note": detalle.concepto,
         "cbc:InvoicedQuantity": detalle.invoicedquantity,
@@ -336,9 +336,9 @@ export class XmlAdmin {
             "#": detalle.priceamount
           }
         }
-      };
-    } else if (typeInvoce === "P") {
-      details = {
+      });
+    } else if (typeInvoce == "P") {
+      cb({
         "cbc:ID": detalle.id,
         "cbc:InvoicedQuantity": detalle.invoicedquantity,
         "cbc:LineExtensionAmount": {
@@ -361,13 +361,12 @@ export class XmlAdmin {
             "#": detalle.priceamount
           }
         }
-      };
+      });
     }
-    return details;
   }
 
-  headerNote (nota: any, cb) {
-    return cb({
+  async headerNote(nota: NoteHeader) {
+    return Promise.resolve({
       "@": {
         "xmlns:fe": "http://www.dian.gov.co/contratos/facturaelectronica/v1",
         "xmlns": "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2",
@@ -397,9 +396,9 @@ export class XmlAdmin {
                   "cbc:EndDate": nota.enddate
                 },
                 "sts:AuthorizedInvoices": {
-                  "sts:Prefix": nota.prefix,
-                  "sts:From": nota.from,
-                  "sts:To": nota.to
+                  "sts:Prefix": "",
+                  "sts:From": nota.rfrom,
+                  "sts:To": nota.rto
                 }
               },
               "sts:InvoiceSource": {
@@ -439,9 +438,9 @@ export class XmlAdmin {
           }
         }
       },
-      "cbc:UBLVersionID" : "UBL 2.0",
-      "cbc:ProfileID" : "DIAN 1.0",
-      "cbc:ID" : nota.note,
+      "cbc:UBLVersionID": "UBL 2.0",
+      "cbc:ProfileID": "DIAN 1.0",
+      "cbc:ID": nota.note,
       "cbc:UUID": {
         "@": {
           "schemeAgencyID": "195",
@@ -471,20 +470,23 @@ export class XmlAdmin {
           "#": nota.cufe
         },
         {
-          "#": nota.description.replace('Ń', 'Ñ')
+          "#": nota.register
         }
       ],
       "cbc:DocumentCurrencyCode": "COP",
+      "cac:OrderReference": {
+        "cbc:ID": nota.contract
+      },
       "cac:BillingReference": {
         "cac:InvoiceDocumentReference": {
           "cbc:ID": nota.invoice,
           "cbc:UUID": nota.cufe,
-          "cbc:IssueDate": nota.invoice_issuedate
+          "cbc:IssueDate": nota.issuedateinvoice
         }
       },
       "cac:AdditionalDocumentReference": {
-        "cbc:ID": nota.description.replace('Ń', 'Ñ'),
-        "cbc:DocumentType": nota.document_paciente
+        "cbc:ID": nota.register,
+        "cbc:DocumentType": nota.identificationpatient
       },
       "fe:AccountingSupplierParty": {
         "cbc:AdditionalAccountID": nota.companyaccountid,
@@ -560,13 +562,12 @@ export class XmlAdmin {
           },
           "cac:Contact": {
             "cbc:Telephone": nota.clienttelephone,
-            "cbc:ElectronicMail": nota.clientemail,
             "cbc:Note": nota.plan
           },
           "fe:Person": {
-            "cbc:FirstName": nota.clientid === 2 ? nota.firstname : "CLIENTE",
-            "cbc:FamilyName": nota.clientid === 2 ? nota.familyname : "",
-            "cbc:MiddleName": nota.clientid === 2 ? nota.middlename : ""
+            "cbc:FirstName": nota.clientaccountid === 2 ? nota.firstname : "CLIENTE",
+            "cbc:FamilyName": nota.clientaccountid === 2 ? nota.familyname : "",
+            "cbc:MiddleName": nota.clientaccountid === 2 ? nota.middlename : ""
           }
         }
       },
@@ -604,31 +605,31 @@ export class XmlAdmin {
           "@": {
             "currencyID": "COP"
           },
-          "#": nota.subtotal ? nota.subtotal : 0
+          "#": nota.price
         },
         "cbc:TaxExclusiveAmount": {
           "@": {
             "currencyID": "COP"
           },
-          "#": nota.taxestotal ? nota.taxestotal : 0
+          "#": 0.00
         },
         "cbc:AllowanceTotalAmount": {
           "@": {
             "currencyID": "COP"
           },
-          "#": nota.discountstotal ? nota.discountstotal : 0
+          "#": 0.00
         },
         "cbc:PayableAmount": {
           "@": {
             "currencyID": "COP"
           },
-          "#": nota.paytotal ? nota.paytotal : 0
+          "#": nota.price
         }
       }
     });
   }
 
-  bodyNote (note: any, cb) {
+  bodyNote(note: NoteBody, cb) {
     return cb({
       "cbc:ID": {
         "@": {
@@ -644,8 +645,13 @@ export class XmlAdmin {
         },
         "#": ""
       },
-      "cbc:Note": note.concept,
-      "cbc:DebitedQuantity": note.debitedquantity,
+      "cbc:Note": note.concepto,
+      "cbc:CreditedQuantity": {
+        "@": {
+          "unitCode": "NIU"
+        },
+        "#": note.invoicedquantity
+      },
       "cbc:LineExtensionAmount": {
         "@": {
           "currencyID": "COP"
@@ -655,19 +661,19 @@ export class XmlAdmin {
       "cac:Item": {
         "cbc:Description": note.description,
         "cac:ManufacturersItemIdentification": {
-          "cbc:ID": note.codreference
+          "cbc:ID": note.servicio
         },
         "cac:AdditionalItemProperty": {
           "cbc:Name": "Total Grupo",
-          "cbc:Value": note.totalgroup
-        },
-        "cac:Price": {
-          "cbc:PriceAmount": {
-            "@": {
-              "currencyID": "COP"
-            },
-            "#": note.priceamount
-          }
+          "cbc:Value": note.totalconcepto
+        }
+      },
+      "cac:Price": {
+        "cbc:PriceAmount": {
+          "@": {
+            "currencyID": "COP"
+          },
+          "#": note.priceamount
         }
       }
     });

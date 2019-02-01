@@ -51,7 +51,7 @@ export function isPermit (roles: string[]): Handler {
     if (req.isAuthenticated() && verifyRoles(roles, req.authInfo.scope)) {
       next();
     } else {
-      res.status(401).json(req.authInfo.message);
+      res.status(401).json({error: 'Acceso Invalido'});
     }
   };
 }

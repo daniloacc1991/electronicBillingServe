@@ -2,13 +2,11 @@ import * as config from 'config';
 import { Request, Response } from 'express';
 import { Commons, log } from '../../services';
 import { FacturaModel } from './';
-import { Invoice } from '../../services/buildInvoice';
-import { XmlAdmin } from '../../interfaces/xml';
 import { RtaComprobanteModel } from '../../interfaces/rtaComprobante';
 
 export class FacturaController {
 
-  public static invoicePending (req: Request, res: Response) {
+  public static invoicePending(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     let userI: string, userF: string;
     req.user.scope === 'USER' ? userI = req.user.user : userI = '  ';
@@ -24,7 +22,7 @@ export class FacturaController {
       });
   }
 
-  public static cufePending (req: Request, res: Response) {
+  public static cufePending(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     let userI: string, userF: string;
     req.user.scope === 'USER' ? userI = req.user.user : userI = '  ';
@@ -40,7 +38,7 @@ export class FacturaController {
       });
   }
 
-  public static invoicesSent (req: Request, res: Response) {
+  public static invoicesSent(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     let userI: string, userF: string;
     req.user.scope === 'USER' ? userI = req.user.user : userI = '  ';
@@ -60,7 +58,7 @@ export class FacturaController {
       });
   }
 
-  public static forYearxUser (req: Request, res: Response) {
+  public static forYearxUser(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     _modelFactura.forYearUser(req.body.date, req.user.user)
       .then(rows => {
@@ -74,7 +72,7 @@ export class FacturaController {
 
   }
 
-  public static electronicForUser (req: Request, res: Response) {
+  public static electronicForUser(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     _modelFactura.electronicforUser(req.user.user)
       .then(rows => {
@@ -87,7 +85,46 @@ export class FacturaController {
       });
   }
 
-  public static saveTransaccion (req: Request, res: Response) {
+  public static invoice(req: Request, res: Response) {
+    const _modelFactura = new FacturaModel();
+    _modelFactura.invoce(req.params.invoice)
+      .then(rows => {
+        log.info('%s %s %s', rows);
+        res.json(Commons.sendResponse('Success', { rows }));
+      })
+      .catch(err => {
+        log.error('%s %s %s', err);
+        res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, err.stack));
+      });
+  }
+
+  public static invoiceHeader(req: Request, res: Response) {
+    const _modelFactura = new FacturaModel();
+    _modelFactura.pg_invoice_header(req.params.invoice)
+      .then(rows => {
+        log.info('%s %s %s', rows);
+        res.json(Commons.sendResponse('Success', rows));
+      })
+      .catch(err => {
+        log.error('%s %s %s', err);
+        res.status(400).json(Commons.sendResponse('Error!! consultando encabezado de la factura..', null, err.stack));
+      });
+  }
+
+  public static invoiceBody(req: Request, res: Response) {
+    const _modelFactura = new FacturaModel();
+    _modelFactura.pg_invoice_body(req.params.invoice)
+      .then(rows => {
+        log.info('%s %s %s', rows);
+        res.json(Commons.sendResponse('Success', rows));
+      })
+      .catch(err => {
+        log.error('%s %s %s', err);
+        res.status(400).json(Commons.sendResponse('Error!! consultando detalle de la nota..', null, err.stack));
+      });
+  }
+
+  public static saveTransaccion(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     _modelFactura.saveTransaccion(req.body.invoice, req.body.transaccion)
       .then(rows => {
@@ -100,7 +137,7 @@ export class FacturaController {
       });
   }
 
-  public static deleteTransaccion (req: Request, res: Response) {
+  public static deleteTransaccion(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     _modelFactura.deleteTransaccion(req.params.invoice)
       .then(rows => {
@@ -113,7 +150,7 @@ export class FacturaController {
       });
   }
 
-  public static saveCufe (req: Request, res: Response) {
+  public static saveCufe(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     const rtaDIAN: RtaComprobanteModel = JSON.parse(req.body.rtaComprobante);
     _modelFactura.saveCufe(rtaDIAN)
@@ -127,40 +164,7 @@ export class FacturaController {
       });
   }
 
-  public static invoice (req: Request, res: Response) {
-    const _invoice = new Invoice();
-    _invoice.generarFactura(req.params.numInvoce)
-      .then(rows => {
-        if (rows.stack) {
-          log.error('%s %s %s', rows);
-          res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, rows.stack));
-        } else {
-          log.info('%s %s %s', rows);
-          res.json(Commons.sendResponse('Success', { rows }));
-        }
-      })
-      .catch(err => {
-        log.error('%s %s %s', err);
-        res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, err.stack));
-      });
-  }
-
-  public static viewHeader (req: Request, res: Response) {
-    const _modelFactura = new FacturaModel();
-    const _xmlAdmin = new XmlAdmin();
-    _modelFactura.invoce(req.params.numInvoce)
-      .then(rows => {
-        const header = _xmlAdmin.headerXML(rows);
-        log.info('%s %s %s', rows);
-        res.json(Commons.sendResponse('Success', { header }));
-      })
-      .catch(err => {
-        log.error('%s %s %s', err);
-        res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, err.stack));
-      });
-  }
-
-  public static viewPDF (req: Request, res: Response) {
+  public static viewPDF(req: Request, res: Response) {
     const _modelFactura = new FacturaModel();
     _modelFactura.getPDF(req.params.invoice)
       .then(row => {
@@ -175,25 +179,4 @@ export class FacturaController {
         res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, err.stack));
       });
   }
-
-  public static viewDetails (req: Request, res: Response) {
-    const _modelFactura = new FacturaModel();
-    const _xmlAdmin = new XmlAdmin();
-    _modelFactura
-      .details(req.params.numInvoce)
-      .then(rows => {
-        const arrayDetails = [];
-        rows.details.forEach(resOne => {
-          const detalle = _xmlAdmin.detailsXML(resOne, rows.typeInvoce);
-          arrayDetails.push(detalle);
-        });
-        log.info('%s %s %s', rows);
-        res.json(Commons.sendResponse('Success', { arrayDetails }));
-      })
-      .catch(err => {
-        log.error('%s %s %s', err);
-        res.status(400).json(Commons.sendResponse('Error!! consultando estructura JSON de la factura..', null, err.stack));
-      });
-  }
-
 }

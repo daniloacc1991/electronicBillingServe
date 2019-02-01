@@ -8,6 +8,7 @@ export class ComfiarController {
 
   public static login(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
+    req.body.password = req.body.password.replace(new RegExp(' ', 'g'), '+');
     _comfiar.login(req.body.user, req.body.password)
       .then(rows => {
         log.info('%s %s %s', rows);
@@ -22,7 +23,7 @@ export class ComfiarController {
   public static enviarFactura(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
     req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
-    _comfiar.enviarFactura(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta)
+    _comfiar.enviarFactura(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta, req.body.tipo_transaccion)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -50,7 +51,7 @@ export class ComfiarController {
   public static respuestaComprobante(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
     req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
-    _comfiar.respuestaComprobante(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta)
+    _comfiar.respuestaComprobante(req.body.token, req.body.date, req.body.invoice, req.body.puntoVenta, req.body.tipo_transaccion)
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));
@@ -64,9 +65,10 @@ export class ComfiarController {
   public static consultarPDF(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
     req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
-    _comfiar.consultarPDF(req.body.token, req.body.date, req.body.invoice, req.body.transaccion, req.body.puntoVenta)
+    console.log(req.body);
+    _comfiar.consultarPDF(req.body.token, req.body.date, req.body.invoice, req.body.transaccion, req.body.puntoVenta, req.body.tipo_transaccion)
       .then(rows => {
-        DecodePDF.converToPdf(rows, req.body.invoice)
+        DecodePDF.converToPdf(rows, req.body.invoice, req.body.tipo_transaccion)
           .then(r => {
             log.info('%s %s %s', r);
             res.json(Commons.sendResponse('Success', { rows }));

@@ -43,7 +43,7 @@ export class DecodePDF {
       return finish;
     } else {
       const _notaModel = new NotaModel();
-      const finish = await _notaModel.savePath(comprobante, `/${result.empresa}/${result.year}/${result.month}/${comprobante}.pdf`);
+      const finish = await _notaModel.savePath(comprobante, `/nota/${result.empresa}/${result.year}/${result.month}/${comprobante}.pdf`);
       return finish;
     }
   }

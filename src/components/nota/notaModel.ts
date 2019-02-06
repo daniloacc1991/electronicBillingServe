@@ -38,7 +38,6 @@ export class NotaModel extends ModelPg {
     try {
       const textTypeNote = await this.pg_typeNote(note);
       const { rows } = await this._pg.query(`SELECT	* FROM fn_note_bussines($1)`, [note]);
-      console.log(rows[0]);
       const xmlHeader = await _xmlAdmin.headerNote(rows[0]);
       xmlHeader[textTypeNote] = [];
       return xmlHeader;
@@ -50,9 +49,10 @@ export class NotaModel extends ModelPg {
   public async pg_note_body(note: string) {
     const _xmlAdmin = new XmlAdmin();
     try {
+      const textTypeNote = await this.pg_typeNote(note);
       const { rows } = await this._pg.query(`SELECT * FROM fn_note_body($1)`, [note]);
       return rows.map(r => {
-        return _xmlAdmin.bodyNote(r, result => {
+        return _xmlAdmin.bodyNote(r, textTypeNote, result => {
           return result;
         });
       });

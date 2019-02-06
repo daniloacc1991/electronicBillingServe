@@ -173,9 +173,7 @@ export class ComfiarModel {
   }
 
   public async respuestaComprobante(token: string, date: any, invoice: string, puntoVenta: number, tipoComprobante: number) {
-    console.log(tipoComprobante);
     const tagRta = await this.nameEquiqueta(tipoComprobante);
-    console.log(tagRta);
     const n = invoice.indexOf('-');
     const factura = invoice;
     if (n < 0) {

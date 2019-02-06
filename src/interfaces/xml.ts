@@ -132,7 +132,7 @@ export class XmlAdmin {
         "cbc:ID": encabezado.contract
       },
       "cac:AdditionalDocumentReference": {
-        "cbc:ID": encabezado.register,
+        "cbc:ID": encabezado.register.replace(new RegExp('Ń', 'g'), 'Ñ'),
         "cbc:DocumentType": encabezado.identificationpatient
       },
       "fe:AccountingSupplierParty": {
@@ -149,7 +149,7 @@ export class XmlAdmin {
             }
           },
           "cac:PartyName": {
-            "cbc:Name": encabezado.companyname
+            "cbc:Name": encabezado.companyname.replace(new RegExp('Ń', 'g'), 'Ñ'),
           },
           "fe:PhysicalLocation": {
             "fe:Address": {
@@ -168,7 +168,7 @@ export class XmlAdmin {
             "cac:TaxScheme": ""
           },
           "fe:PartyLegalEntity": {
-            "cbc:RegistrationName": encabezado.companyname
+            "cbc:RegistrationName": encabezado.companyname.replace(new RegExp('Ń', 'g'), 'Ñ'),
           },
           "cac:Contact": {
             "cbc:Telephone": encabezado.companytelephone
@@ -205,7 +205,7 @@ export class XmlAdmin {
             "cac:TaxScheme": ""
           },
           "fe:PartyLegalEntity": {
-            "cbc:RegistrationName": encabezado.clientname
+            "cbc:RegistrationName": encabezado.clientname.replace(new RegExp('Ń', 'g'), 'Ñ'),
           },
           "cac:Contact": {
             "cbc:Telephone": encabezado.clienttelephone,
@@ -213,9 +213,9 @@ export class XmlAdmin {
             "cbc:Note": encabezado.plan
           },
           "fe:Person": {
-            "cbc:FirstName": encabezado.clientaccountid === 2 ? encabezado.firstname : "CLIENTE",
-            "cbc:FamilyName": encabezado.clientaccountid === 2 ? encabezado.familyname : "",
-            "cbc:MiddleName": encabezado.clientaccountid === 2 ? encabezado.middlename : ""
+            "cbc:FirstName": encabezado.clientaccountid === 2 ? encabezado.firstname.replace(new RegExp('Ń', 'g'), 'Ñ') : "CLIENTE",
+            "cbc:FamilyName": encabezado.clientaccountid === 2 ? encabezado.familyname.replace(new RegExp('Ń', 'g'), 'Ñ') : "",
+            "cbc:MiddleName": encabezado.clientaccountid === 2 ? encabezado.middlename.replace(new RegExp('Ń', 'g'), 'Ñ') : ""
           }
         }
       },
@@ -296,7 +296,7 @@ export class XmlAdmin {
           "#": detalle.lineextensionamount
         },
         "fe:Item": {
-          "cbc:Description": detalle.description
+          "cbc:Description": detalle.description.replace(new RegExp('Ń', 'g'), 'Ñ'),
         },
         "fe:Price": {
           "cbc:PriceAmount": {
@@ -310,7 +310,7 @@ export class XmlAdmin {
     } else if (typeInvoce == "D" || typeInvoce == "H") {
       cb({
         "cbc:ID": detalle.id,
-        "cbc:Note": detalle.concepto,
+        "cbc:Note": detalle.concepto.replace(new RegExp('Ń', 'g'), 'Ñ'),
         "cbc:InvoicedQuantity": detalle.invoicedquantity,
         "cbc:LineExtensionAmount": {
           "@": {
@@ -319,7 +319,7 @@ export class XmlAdmin {
           "#": detalle.lineextensionamount
         },
         "fe:Item": {
-          "cbc:Description": detalle.description,
+          "cbc:Description": detalle.description.replace(new RegExp('Ń', 'g'), 'Ñ'),
           "cac:ManufacturersItemIdentification": {
             "cbc:ID": detalle.servicio
           },
@@ -461,7 +461,7 @@ export class XmlAdmin {
           "#": nota.observation ? nota.observation : ''
         },
         {
-          "#": nota.producedby
+          "#": nota.producedby.replace(new RegExp('Ń', 'g'), 'Ñ')
         },
         {
           "#": nota.printdate
@@ -470,7 +470,7 @@ export class XmlAdmin {
           "#": nota.cufe
         },
         {
-          "#": nota.register
+          "#": nota.register.replace(new RegExp('Ń', 'g'), 'Ñ')
         }
       ],
       "cbc:DocumentCurrencyCode": "COP",
@@ -485,7 +485,7 @@ export class XmlAdmin {
         }
       },
       "cac:AdditionalDocumentReference": {
-        "cbc:ID": nota.register,
+        "cbc:ID": nota.register.replace(new RegExp('Ń', 'g'), 'Ñ'),
         "cbc:DocumentType": nota.identificationpatient
       },
       "fe:AccountingSupplierParty": {
@@ -558,16 +558,16 @@ export class XmlAdmin {
             "cac:TaxScheme": ""
           },
           "fe:PartyLegalEntity": {
-            "cbc:RegistrationName": nota.clientname
+            "cbc:RegistrationName": nota.clientname.replace(new RegExp('Ń', 'g'), 'Ñ')
           },
           "cac:Contact": {
             "cbc:Telephone": nota.clienttelephone,
             "cbc:Note": nota.plan
           },
           "fe:Person": {
-            "cbc:FirstName": nota.clientaccountid === 2 ? nota.firstname : "CLIENTE",
-            "cbc:FamilyName": nota.clientaccountid === 2 ? nota.familyname : "",
-            "cbc:MiddleName": nota.clientaccountid === 2 ? nota.middlename : ""
+            "cbc:FirstName": nota.clientaccountid === 2 ? nota.firstname.replace(new RegExp('Ń', 'g'), 'Ñ') : "CLIENTE",
+            "cbc:FamilyName": nota.clientaccountid === 2 ? nota.familyname.replace(new RegExp('Ń', 'g'), 'Ñ') : "",
+            "cbc:MiddleName": nota.clientaccountid === 2 ? nota.middlename.replace(new RegExp('Ń', 'g'), 'Ñ') : ""
           }
         }
       },
@@ -629,53 +629,103 @@ export class XmlAdmin {
     });
   }
 
-  bodyNote(note: NoteBody, cb) {
-    return cb({
-      "cbc:ID": {
-        "@": {
-          "schemeAgencyID": 195,
-          "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+  bodyNote(note: NoteBody, typeNote: string, cb) {
+    if ('cac:CreditNoteLine' == typeNote) {
+      return cb({
+        "cbc:ID": {
+          "@": {
+            "schemeAgencyID": 195,
+            "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+          },
+          "#": note.id
         },
-        "#": note.id
-      },
-      "cbc:UUID": {
-        "@": {
-          "schemeAgencyID": 195,
-          "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+        "cbc:UUID": {
+          "@": {
+            "schemeAgencyID": 195,
+            "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+          },
+          "#": ""
         },
-        "#": ""
-      },
-      "cbc:Note": note.concepto,
-      "cbc:CreditedQuantity": {
-        "@": {
-          "unitCode": "NIU"
+        "cbc:Note": note.concepto.replace(new RegExp('Ń', 'g'), 'Ñ'),
+        "cbc:CreditedQuantity": {
+          "@": {
+            "unitCode": "NIU"
+          },
+          "#": note.invoicedquantity
         },
-        "#": note.invoicedquantity
-      },
-      "cbc:LineExtensionAmount": {
-        "@": {
-          "currencyID": "COP"
-        },
-        "#": note.lineextensionamount
-      },
-      "cac:Item": {
-        "cbc:Description": note.description,
-        "cac:ManufacturersItemIdentification": {
-          "cbc:ID": note.servicio
-        },
-        "cac:AdditionalItemProperty": {
-          "cbc:Name": "Total Grupo",
-          "cbc:Value": note.totalconcepto
-        }
-      },
-      "cac:Price": {
-        "cbc:PriceAmount": {
+        "cbc:LineExtensionAmount": {
           "@": {
             "currencyID": "COP"
           },
-          "#": note.priceamount
+          "#": note.lineextensionamount
+        },
+        "cac:Item": {
+          "cbc:Description": note.description.replace(new RegExp('Ń', 'g'), 'Ñ'),
+          "cac:ManufacturersItemIdentification": {
+            "cbc:ID": note.servicio
+          },
+          "cac:AdditionalItemProperty": {
+            "cbc:Name": "Total Grupo",
+            "cbc:Value": note.totalconcepto
+          }
+        },
+        "cac:Price": {
+          "cbc:PriceAmount": {
+            "@": {
+              "currencyID": "COP"
+            },
+            "#": note.priceamount
+          }
         }
-      }
-    });
+      });
+    } else {
+      return cb({
+        "cbc:ID": {
+          "@": {
+            "schemeAgencyID": 195,
+            "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+          },
+          "#": note.id
+        },
+        "cbc:UUID": {
+          "@": {
+            "schemeAgencyID": 195,
+            "schemeAgencyName": "CO, DIAN (Direccion de Impuestos y Aduanas Nacionales)"
+          },
+          "#": ""
+        },
+        "cbc:Note": note.concepto.replace(new RegExp('Ń', 'g'), 'Ñ'),
+        "cbc:DebitedQuantity": {
+          "@": {
+            "unitCode": "NIU"
+          },
+          "#": note.invoicedquantity
+        },
+        "cbc:LineExtensionAmount": {
+          "@": {
+            "currencyID": "COP"
+          },
+          "#": note.lineextensionamount
+        },
+        "cac:Item": {
+          "cbc:Description": note.description.replace(new RegExp('Ń', 'g'), 'Ñ'),
+          "cac:ManufacturersItemIdentification": {
+            "cbc:ID": note.servicio
+          },
+          "cac:AdditionalItemProperty": {
+            "cbc:Name": "Total Grupo",
+            "cbc:Value": note.totalconcepto
+          }
+        },
+        "cac:Price": {
+          "cbc:PriceAmount": {
+            "@": {
+              "currencyID": "COP"
+            },
+            "#": note.priceamount
+          }
+        }
+      });
+    }
   }
 }

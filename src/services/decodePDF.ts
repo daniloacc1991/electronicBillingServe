@@ -9,10 +9,7 @@ export class DecodePDF {
   public static async converToPdf(pdfBase64: any, comprobante: string, tipoComprobante: number) {
     try {
       const result = await this.pathPdf(comprobante, tipoComprobante);
-      const folder = path.join(__dirname, '..', '..', 'public', result.empresa, result.year, result.month);
-      if (!(existsSync(folder))) {
-        mkdirSync(folder, { recursive: true });
-      }
+      const folder = await this.existsSyncFolder(result, tipoComprobante);
       const byteCharacters = Buffer.from(pdfBase64, 'base64').toString('binary');
       const file = path.join(folder, `${comprobante}.pdf`);
       this.fileExists(file);
@@ -45,6 +42,22 @@ export class DecodePDF {
       const _notaModel = new NotaModel();
       const finish = await _notaModel.savePath(comprobante, `/nota/${result.empresa}/${result.year}/${result.month}/${comprobante}.pdf`);
       return finish;
+    }
+  }
+
+  private static async existsSyncFolder(result: any, tipoComprobante: number) {
+    if (tipoComprobante == 1) {
+      const folder = path.join(__dirname, '..', '..', 'public', result.empresa, result.year, result.month);
+      if (!(existsSync(folder))) {
+        mkdirSync(folder, { recursive: true });
+      }
+      return folder;
+    } else {
+      const folder = path.join(__dirname, '..', '..', 'public', 'nota', result.empresa, result.year, result.month);
+      if (!(existsSync(folder))) {
+        mkdirSync(folder, { recursive: true });
+      }
+      return folder;
     }
   }
 

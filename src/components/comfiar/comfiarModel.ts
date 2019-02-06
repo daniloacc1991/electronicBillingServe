@@ -1,6 +1,5 @@
 import * as rpn from 'request-promise-native';
 import * as config from 'config';
-// import { xml2json } from 'xml-js';
 import * as xmlToJson from 'xml-to-json-stream';
 
 import { IRequestPromise } from '../../interfaces/rpn';
@@ -407,27 +406,4 @@ export class ComfiarModel {
       return 'fe:DebitNote';
     }
   }
-
-  // private async xmlJs(xml) {
-  //   return new Promise((resolve, reject) => {
-  //     const optionsXml = {
-  //       compact: true,
-  //       ignoreAttributes: true,
-  //       ignoreComment: true,
-  //       ignoreCdata: true,
-  //       ignoreDeclaration: true,
-  //       spaces: 0
-  //     };
-  //     const xmlDian = xml;
-  //     // xmlDian = xmlDian.replace(new RegExp('&lt;', 'g'), '<');
-  //     // xmlDian = xmlDian.replace(new RegExp('&gt;', 'g'), '>');
-  //     try {
-  //       const result = xml2json(xmlDian, optionsXml);
-  //       const json = JSON.parse(result);
-  //       resolve(json);
-  //     } catch (e) {
-  //       reject(e);
-  //     }
-  //   });
-  // }
 }

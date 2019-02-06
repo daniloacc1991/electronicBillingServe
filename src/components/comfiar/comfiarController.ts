@@ -65,7 +65,6 @@ export class ComfiarController {
   public static consultarPDF(req: Request, res: Response) {
     const _comfiar = new ComfiarModel();
     req.body.token = req.body.token.replace(new RegExp(' ', 'g'), '+');
-    console.log(req.body);
     _comfiar.consultarPDF(req.body.token, req.body.date, req.body.invoice, req.body.transaccion, req.body.puntoVenta, req.body.tipo_transaccion)
       .then(rows => {
         DecodePDF.converToPdf(rows, req.body.invoice, req.body.tipo_transaccion)

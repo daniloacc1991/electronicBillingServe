@@ -64,6 +64,10 @@ export class NotaModel extends ModelPg {
   public async pg_pending(userI: string, userF: string) {
     try {
       const { rows } = await this._pg.query('SELECT * FROM fn_note_pending($1, $2)', [userI, userF]);
+      rows.map(r => {
+        r.empresa = r.empresa.replace(new RegExp('Ń', 'g'), 'Ñ');
+        r.usuario = r.usuario.replace(new RegExp('Ń', 'g'), 'Ñ');
+      });
       return rows;
     } catch (e) {
       throw e;
@@ -73,6 +77,10 @@ export class NotaModel extends ModelPg {
   public async pg_resend(userI: string, userF: string) {
     try {
       const { rows } = await this._pg.query('SELECT * FROM fn_note_resend($1, $2)', [userI, userF]);
+      rows.map(r => {
+        r.empresa = r.empresa.replace(new RegExp('Ń', 'g'), 'Ñ');
+        r.usuario = r.usuario.replace(new RegExp('Ń', 'g'), 'Ñ');
+      });
       return rows;
     } catch (e) {
       throw e;
@@ -82,6 +90,9 @@ export class NotaModel extends ModelPg {
   public async pg_sent(userI: string, userF: string, fechaI: string, fechaF: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_note_sent($1, $2, $3, $4)`, [userI, userF, fechaI, fechaF]);
+      rows.map(r => {
+        r.empresa = r.empresa.replace(new RegExp('Ń', 'g'), 'Ñ');
+      });
       return rows;
     } catch (e) {
       throw e;

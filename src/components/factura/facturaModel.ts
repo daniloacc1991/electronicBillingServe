@@ -14,6 +14,10 @@ export class FacturaModel extends ModelPg {
   public async invoicePending(userI: string, userF: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoice_pending($1, $2)`, [userI, userF]);
+      rows.map(r => {
+        r.empresa = r.empresa.replace(new RegExp('Ń', 'g'), 'Ñ');
+        r.usuario = r.usuario.replace(new RegExp('Ń', 'g'), 'Ñ');
+      });
       return rows;
     } catch (e) {
       throw e;
@@ -23,6 +27,10 @@ export class FacturaModel extends ModelPg {
   public async cufePending(userI: string, userF: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoice_cufe_pending($1, $2)`, [userI, userF]);
+      rows.map(r => {
+        r.empresa = r.empresa.replace(new RegExp('Ń', 'g'), 'Ñ');
+        r.usuario = r.usuario.replace(new RegExp('Ń', 'g'), 'Ñ');
+      });
       return rows;
     } catch (e) {
       throw e;
@@ -32,6 +40,9 @@ export class FacturaModel extends ModelPg {
   public async invoicesSent(userI: string, userF: string, fechaI: string, fechaF: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoice_sent($1, $2, $3, $4)`, [userI, userF, fechaI, fechaF]);
+      rows.map(r => {
+        r.empresa = r.empresa.replace(new RegExp('Ń', 'g'), 'Ñ');
+      });
       return rows;
     } catch (e) {
       throw e;
@@ -41,9 +52,7 @@ export class FacturaModel extends ModelPg {
   public async forYearUser(date: string, user: string) {
     try {
       const { rows } = await this._pg.query(`SELECT * FROM fn_invoces_for_Year_User($1, $2)`, [date, user]);
-      return rows.map(t => {
-        return t;
-      });
+      return rows;
     } catch (e) {
       throw e;
     }

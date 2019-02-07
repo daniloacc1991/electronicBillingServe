@@ -439,6 +439,7 @@ export class XmlAdmin {
         }
       },
       "cbc:UBLVersionID": "UBL 2.0",
+      "cbc:CustomizationID": "urn:oasis:names:specification:ubl:xpath:Order-2.0:sbs-1.0-draft",
       "cbc:ProfileID": "DIAN 1.0",
       "cbc:ID": nota.note,
       "cbc:UUID": {

@@ -152,6 +152,7 @@ export class FacturaModel extends ModelPg {
 
   public async pg_invoice(factura: string) {
     try {
+      const serviciosVsFactura = await this.serviciosVsFactura(factura);
       const body = await this.pg_invoice_body(factura);
       const header = await this.pg_invoice_header(factura);
       header['fe:InvoiceLine'] = body;
@@ -243,7 +244,7 @@ export class FacturaModel extends ModelPg {
         });
       }
       for (let i = 0; i < rows.length; i++) {
-        if (rows[i].description === null || typeof (rows[i].description) === undefined) {
+        if (rows[i].description === null || typeof (rows[i].description) === undefined || rows[i].description == '') {
           return Promise.reject({
             stack: {
               delete: false,
@@ -344,6 +345,48 @@ export class FacturaModel extends ModelPg {
         }
       }
 
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async serviciosVsFactura(factura: string): Promise<boolean> {
+    try {
+      const { rows } = await this._pg.query(`SELECT	r.factura,
+      SUM(sd.valor) as valor
+    FROM	servicio_encabezado se,
+      servicio_detalle sd,
+      registro r,
+      concepto c
+    WHERE	se.numero_servicio = sd.numero_servicio
+    AND	se.concepto = sd.concepto
+    AND se.registro = sd.registro
+    AND se.registro = r.registro
+    AND se.concepto = c.concepto
+    AND r.factura = $1
+    GROUP BY 1
+    HAVING SUM(sd.valor) <> (
+        SELECT f.valor + COALESCE(t1.recibos,0)
+        FROM factura f
+          LEFT JOIN (
+            SELECT	r.factura,
+              COALESCE(SUM(rd.valor_pago),0)::numeric recibos
+            FROM registro r
+              JOIN recibo_caja_encabezado re ON re.registro = r.registro
+              JOIN recibo_caja_detalle rd ON re.recibo_caja = rd.recibo_caja
+            WHERE	r.factura = $1
+            GROUP BY r.factura ) t1 ON t1.factura = f.factura
+            WHERE	f.factura = $1)`, [factura]);
+      if (rows.length > 0) {
+        return Promise.reject({
+          stack: {
+            delete: false,
+            msj: 'VERIFIQUE LOS VALORES ENTRE EL VALOR DE LA FACTURA Y LOS SERVICIOS'
+          }
+        });
+      } else {
+        return true;
+      }
     } catch (e) {
       throw e;
     }

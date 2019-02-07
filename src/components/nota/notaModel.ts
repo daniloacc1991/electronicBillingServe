@@ -39,6 +39,9 @@ export class NotaModel extends ModelPg {
       const textTypeNote = await this.pg_typeNote(note);
       const { rows } = await this._pg.query(`SELECT	* FROM fn_note_bussines($1)`, [note]);
       const xmlHeader = await _xmlAdmin.headerNote(rows[0]);
+      if (textTypeNote === 'cac:CreditNoteLine') {
+        delete xmlHeader['cbc:CustomizationID'];
+      }
       xmlHeader[textTypeNote] = [];
       return xmlHeader;
     } catch (e) {

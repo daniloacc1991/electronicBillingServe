@@ -396,7 +396,7 @@ export class XmlAdmin {
                   "cbc:EndDate": nota.enddate
                 },
                 "sts:AuthorizedInvoices": {
-                  "sts:Prefix": "",
+                  "sts:Prefix": nota.prefix,
                   "sts:From": nota.rfrom,
                   "sts:To": nota.rto
                 }
@@ -441,7 +441,7 @@ export class XmlAdmin {
       "cbc:UBLVersionID": "UBL 2.0",
       "cbc:CustomizationID": "urn:oasis:names:specification:ubl:xpath:Order-2.0:sbs-1.0-draft",
       "cbc:ProfileID": "DIAN 1.0",
-      "cbc:ID": nota.note,
+      "cbc:ID": nota.prefix + nota.note,
       "cbc:UUID": {
         "@": {
           "schemeAgencyID": "195",
@@ -469,9 +469,6 @@ export class XmlAdmin {
         },
         {
           "#": nota.cufe
-        },
-        {
-          "#": nota.register.replace(new RegExp('Ń', 'g'), 'Ñ')
         }
       ],
       "cbc:DocumentCurrencyCode": "COP",

@@ -9,7 +9,8 @@
     "dev": "cross-env NODE_ENV=development nodemon dist/",
     "build:dev": "webpack --config ./webpack.config.js --progress --profile --color --display-error-details --display-cached && npm run copy-files",
     "build:prod": "cross-env NODE_ENV=production webpack --config ./webpack.config.js  --progress --profile --color --display-error-details --display-cached --bail && npm run copy-files",
-    "copy-files": "node copyFiles.js"
+    "copy-files": "node copyFiles.js",
+    "start:prod": "tsc && pm2 restart 0"
   },
   "author": "Danilo Alfondo Cadena",
   "license": "ISC",

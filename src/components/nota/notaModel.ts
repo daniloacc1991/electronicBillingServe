@@ -36,8 +36,15 @@ export class NotaModel extends ModelPg {
   public async pg_note_header(note: string) {
     const _xmlAdmin = new XmlAdmin();
     try {
+      let namefunction: string;
+      const tipoEmpresa = await this.tipoEmpresaPersona(note);
+      if (tipoEmpresa == 'S') {
+        namefunction = 'fn_note_person';
+      } else {
+        namefunction = 'fn_note_bussines';
+      }
       const textTypeNote = await this.pg_typeNote(note);
-      const { rows } = await this._pg.query(`SELECT	* FROM fn_note_bussines($1)`, [note]);
+      const { rows } = await this._pg.query(`SELECT	* FROM ${namefunction}($1)`, [note]);
       const xmlHeader = await _xmlAdmin.headerNote(rows[0]);
       if (textTypeNote === 'cac:CreditNoteLine') {
         delete xmlHeader['cbc:CustomizationID'];
@@ -178,6 +185,23 @@ export class NotaModel extends ModelPg {
     try {
       const { rows } = await this._pg.query(`SELECT path_pdf FROM nota_electronica_encabezado WHERE note = $1`, [note]);
       return ((!rows) ? {} : rows[0]);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  private async tipoEmpresaPersona(nota: string): Promise<string> {
+    try {
+      const { rows } = await this._pg.query(`SELECT e.fe_persona_natural tipo FROM factura f JOIN empresa e ON e.empresa = f.empresa JOIN nota_electronica_encabezado ne ON   ne.factura = f.factura WHERE ne.nota = $1`, [nota]);
+      if (rows.length !== 1) {
+        return Promise.reject({
+          stack: {
+            delete: false,
+            msj: 'No se encontró tipo empresa de la factura'
+          }
+        });
+      }
+      return rows[0].tipo;
     } catch (e) {
       throw e;
     }

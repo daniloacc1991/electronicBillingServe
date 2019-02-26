@@ -99,7 +99,6 @@ export class NotaController {
 
   public static saveTransaccion(req: Request, res: Response) {
     const _notaModel = new NotaModel();
-    console.log(req.body);
     _notaModel.saveTransaccion(req.body.note, req.body.transaccion)
       .then(rows => {
         log.info('%s %s %s', rows);
@@ -113,7 +112,6 @@ export class NotaController {
 
   public static deleteTransaccion(req: Request, res: Response) {
     const _notaModel = new NotaModel();
-    console.log(req.body);
     _notaModel.deleteTransaccion(req.params.note)
       .then(rows => {
         log.info('%s %s %s', rows);

@@ -1,6 +1,6 @@
 import { ModelPg } from '../../services';
 import { RtaComprobanteModel } from '../../interfaces/rtaComprobante';
-import { XmlAdmin } from '../../interfaces/xml';
+import { NoteHeader, XmlAdmin } from '@/interfaces';
 
 export class NotaModel extends ModelPg {
   private _pg;
@@ -45,7 +45,23 @@ export class NotaModel extends ModelPg {
       }
       const textTypeNote = await this.pg_typeNote(note);
       const { rows } = await this._pg.query(`SELECT	* FROM ${namefunction}($1)`, [note]);
-      const xmlHeader = await _xmlAdmin.headerNote(rows[0]);
+
+      let headerJson: NoteHeader;
+      if (tipoEmpresa == 'S') {
+        const namesplit: string[] = rows[0].clientname.split(' ');
+        const position = namesplit.length;
+        rows[0].firstname = namesplit[0];
+        if (namesplit.length === 2) {
+          rows[0].familyname = namesplit[1];
+        } else {
+          rows[0].familyname = namesplit[position - 2] + ' ' + namesplit[position - 1];
+        }
+        headerJson = rows[0];
+      } else {
+        headerJson = rows[0];
+      }
+
+      const xmlHeader = await _xmlAdmin.headerNote(headerJson);
       if (textTypeNote === 'cac:CreditNoteLine') {
         delete xmlHeader['cbc:CustomizationID'];
       }
@@ -192,7 +208,7 @@ export class NotaModel extends ModelPg {
 
   private async tipoEmpresaPersona(nota: string): Promise<string> {
     try {
-      const { rows } = await this._pg.query(`SELECT e.fe_persona_natural tipo FROM factura f JOIN empresa e ON e.empresa = f.empresa JOIN nota_electronica_encabezado ne ON   ne.factura = f.factura WHERE ne.nota = $1`, [nota]);
+      const { rows } = await this._pg.query(`SELECT e.fe_persona_natural tipo FROM factura f JOIN empresa e ON e.empresa = f.empresa JOIN nota_electronica_encabezado ne ON ne.factura = f.factura WHERE ne.nota = $1`, [nota]);
       if (rows.length !== 1) {
         return Promise.reject({
           stack: {

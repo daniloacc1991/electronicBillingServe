@@ -1,6 +1,6 @@
 import { ModelPg } from '../../services';
 import { RtaComprobanteModel } from '../../interfaces/rtaComprobante';
-import { NoteHeader, XmlAdmin } from '@/interfaces';
+import { NoteHeader, XmlAdmin } from '../../interfaces';
 
 export class NotaModel extends ModelPg {
   private _pg;
@@ -45,20 +45,20 @@ export class NotaModel extends ModelPg {
       }
       const textTypeNote = await this.pg_typeNote(note);
       const { rows } = await this._pg.query(`SELECT	* FROM ${namefunction}($1)`, [note]);
-
+      const row = rows[0][namefunction][0];
       let headerJson: NoteHeader;
       if (tipoEmpresa == 'S') {
-        const namesplit: string[] = rows[0].clientname.split(' ');
+        const namesplit: string[] = row.clientname.split(' ');
         const position = namesplit.length;
-        rows[0].firstname = namesplit[0];
+        row.firstname = namesplit[0];
         if (namesplit.length === 2) {
-          rows[0].familyname = namesplit[1];
+          row.familyname = namesplit[1];
         } else {
-          rows[0].familyname = namesplit[position - 2] + ' ' + namesplit[position - 1];
+          row.familyname = namesplit[position - 2] + ' ' + namesplit[position - 1];
         }
-        headerJson = rows[0];
+        headerJson = row;
       } else {
-        headerJson = rows[0];
+        headerJson = row;
       }
 
       const xmlHeader = await _xmlAdmin.headerNote(headerJson);
@@ -74,9 +74,21 @@ export class NotaModel extends ModelPg {
 
   public async pg_note_body(note: string) {
     const _xmlAdmin = new XmlAdmin();
+    let nameFuntion;
     try {
+      const typeRGNote = await this._pg.query(`SELECT fe_tipo_factura tipo_factura FROM nota_electronica_encabezado WHERE nota = $1`, [note]);
+
+      if (typeRGNote.rows[0].tipo_factura == 'R') {
+        nameFuntion = 'fn_note_body_resumida';
+      } else if (typeRGNote.rows[0].tipo_factura == 'D') {
+        nameFuntion = 'fn_note_body_detallada';
+      } else if (typeRGNote.rows[0].tipo_factura == 'P') {
+        nameFuntion = 'fn_note_body_paquete';
+      } else if (typeRGNote.rows[0].tipo_factura == 'H') {
+        nameFuntion = 'fn_note_body_homologo';
+      }
       const textTypeNote = await this.pg_typeNote(note);
-      const { rows } = await this._pg.query(`SELECT * FROM fn_note_body($1)`, [note]);
+      const { rows } = await this._pg.query(`SELECT * FROM ${nameFuntion}($1)`, [note]);
       return rows.map(r => {
         return _xmlAdmin.bodyNote(r, textTypeNote, result => {
           return result;

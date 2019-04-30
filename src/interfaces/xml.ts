@@ -283,8 +283,6 @@ export class XmlAdmin {
   }
 
   bodyInvoice(detalle: InvoiceBody, typeInvoce: string, cb) {
-    console.log(typeInvoce);
-    console.log(detalle);
     if (typeInvoce == "R") {
       cb({
         "cbc:ID": detalle.id,
@@ -469,11 +467,21 @@ export class XmlAdmin {
         },
         {
           "#": nota.cufe
+        },
+        {
+          "#": nota.valuediscount
+        },
+        {
+          "#": nota.codediscount
+        },
+        {
+          "#": nota.descripciondiscount
         }
       ],
       "cbc:DocumentCurrencyCode": "COP",
       "cac:OrderReference": {
-        "cbc:ID": nota.contract
+        "cbc:ID": nota.contract,
+        "cbc:CustomerReference": nota.typenote,
       },
       "cac:BillingReference": {
         "cac:InvoiceDocumentReference": {
@@ -603,7 +611,7 @@ export class XmlAdmin {
           "@": {
             "currencyID": "COP"
           },
-          "#": nota.price
+          "#": nota.lineextensionamount
         },
         "cbc:TaxExclusiveAmount": {
           "@": {
@@ -615,13 +623,13 @@ export class XmlAdmin {
           "@": {
             "currencyID": "COP"
           },
-          "#": 0.00
+          "#": nota.allowancetotalamount
         },
         "cbc:PayableAmount": {
           "@": {
             "currencyID": "COP"
           },
-          "#": nota.price
+          "#": nota.payableamount
         }
       }
     });
@@ -692,7 +700,7 @@ export class XmlAdmin {
           },
           "#": ""
         },
-        "cbc:Note": note.concepto.replace(new RegExp('Ń', 'g'), 'Ñ'),
+        "cbc:Note": note.concepto ? note.concepto.replace(new RegExp('Ń', 'g'), 'Ñ') : '',
         "cbc:DebitedQuantity": {
           "@": {
             "unitCode": "NIU"

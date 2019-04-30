@@ -13,7 +13,11 @@ export interface NoteHeader {
   observation: string;
   producedby: string;
   printdate: string;
+  valuediscount: number;
+  codediscount: string;
+  descripciondiscount: string;
   contract: string;
+  typenote: number;
   invoice: string;
   cufe: string;
   issuedateinvoice: string;
@@ -42,16 +46,18 @@ export interface NoteHeader {
   firstname: string;
   familyname: string;
   middlename: string;
-  price: number;
+  lineextensionamount: number;
+  allowancetotalamount: number;
+  payableamount: number;
 }
 
 export interface NoteBody {
   id: number;
-  concepto: string;
-  servicio: string;
-  description: string;
-  invoicedquantity: number;
-  lineextensionamount: number;
-  priceamount: number;
-  totalconcepto: number;
+  concepto?: string;
+  servicio?: string;
+  description?: string;
+  invoicedquantity?: number;
+  lineextensionamount?: number;
+  priceamount?: number;
+  totalconcepto?: number;
 }

@@ -178,13 +178,17 @@ export class NotaModel extends ModelPg {
         estadoDIAN = $8,
         fe_id_transaccion = $9
       WHERE	nota = $2
-      RETURNING nota, cufe, estado`,
+      RETURNING nota, cufe, estado,factura,ind_anula_factura`,
         [cufe, note, estado, receivedDateTime, responseDateTime, id, msj, estadoDIAN, transaccion]);
       const rta = {
         cufe: rows[0].cufe,
         factura: rows[0].factura,
         estado: estado
       };
+      if (rows[0].ind_anula_factura = 'S') {
+        await this._pg.query(`UPDATE registro SET estado = 'A', factura = NULL WHERE registro = $1`,
+        [rows[0].factura]);
+      }
       return rta;
     } catch (e) {
       throw e;

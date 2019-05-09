@@ -126,7 +126,7 @@ export class NotaController {
   public static saveCufe(req: Request, res: Response) {
     const _notaModel = new NotaModel();
     const rtaDIAN: RtaComprobanteModel = JSON.parse(req.body.rtaComprobante);
-    _notaModel.saveCufe(rtaDIAN)
+    _notaModel.saveCufe(rtaDIAN, req.user.user )
       .then(rows => {
         log.info('%s %s %s', rows);
         res.json(Commons.sendResponse('Success', { rows }));

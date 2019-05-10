@@ -34,7 +34,7 @@ passport.use('bearer', new BearerStrategy((token, done) => {
   const _userModel = new UserModel();
   _userModel.pg_verifyToken(token)
     .then((id) => {
-      verify(token, process.env.API_KEY, (err, decoded: any) => {
+      verify(token, configEnv.get('API_KEY'), (err, decoded: any) => {
         if (err) {
           log.error(err);
           return done(err);

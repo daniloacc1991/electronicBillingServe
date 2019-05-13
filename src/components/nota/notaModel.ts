@@ -186,15 +186,25 @@ export class NotaModel extends ModelPg {
         estado: estado
       };
 
-      if (rows[0].ind_anula_factura = 'S') {
+      if (rows[0].ind_anula_factura === 'S') {
         await this._pg.query(`
         INSERT INTO seguimiento_registro (registro, fecha_asignacion, funcionario_recibe, funcionario_entrega, estado, tipo, radicador, observacion)
         SELECT registro, Date_Trunc('second', now()), $2, 'EMP','I','R','9999','ASIGNADO AUTOMATICAMENTE ANULAR LA FACTURA.'
         FROM  registro
         WHERE factura = $1`, [rows[0].factura, usuario]);
 
-        await this._pg.query(`UPDATE registro SET estado = 'A', factura = NULL WHERE factura = $1`,
-          [rows[0].factura]);
+        await this._pg.query(`
+        UPDATE registro
+        SET estado = 'A'
+        factura = NULL
+        ind_registro_auditado = 'N'
+        usuario_registro_auditado = null
+        fecha_registro_auditado = null
+        ind_cuenta_cerrada = 'N'
+        fecha_cierre_cuenta = null
+        usuario_cierre_cuenta = null 
+        WHERE factura = $1 
+        RETURNING registro`,[rows[0].factura]);
       }
       return rta;
     } catch (e) {

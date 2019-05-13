@@ -193,8 +193,18 @@ export class NotaModel extends ModelPg {
         FROM  registro
         WHERE factura = $1`, [rows[0].factura, usuario]);
 
-        await this._pg.query(`UPDATE registro SET estado = 'A', factura = NULL WHERE registro = $1 RETURNING registro`,
-          [rows[0].factura]);
+        await this._pg.query(`
+        UPDATE registro 
+        SET estado = 'A'
+        factura = NULL
+        ind_registro_auditado = 'N'
+        usuario_registro_auditado = null
+        fecha_registro_auditado = null
+        ind_cuenta_cerrada = 'N'
+        fecha_cierre_cuenta = null
+        usuario_cierre_cuenta = null 
+        WHERE factura = $1 
+        RETURNING registro`,[rows[0].factura]);
       }
       return rta;
     } catch (e) {

@@ -196,6 +196,9 @@ export class FacturaModel extends ModelPg {
           t.firstname = namesplit[0];
           if (namesplit.length === 2) {
             t.familyname = namesplit[1];
+          } else if (namesplit.length === 4) {
+            t.firstname = `${namesplit[0]} ${namesplit[1]}`
+            t.familyname = `${namesplit[2]} ${namesplit[3]}`
           } else {
             t.familyname = namesplit[position - 2] + ' ' + namesplit[position - 1];
           }
